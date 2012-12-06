@@ -1,0 +1,35 @@
+int i,j,k;
+bool a,b;
+int main() {
+	i=34; j=2;
+	a=true;
+	//b=true;
+	
+	write("\ni=");
+	write(i);	
+	write(", j=");
+	write(j);	
+	write(", a=");
+	write(a);	
+	write(", b=");
+	write(b);	
+	if( (!(i>j) && a)||(b||(j<k))) i=j; else a = b; 
+	write("\ni=");
+	write(i);	
+	write(", j=");
+	write(j);	
+	write(", a=");
+	write(a);	
+	write(", b=");
+	write(b);	
+	return 1;
+}
+/**
+   The executing result is
+     i=34, j=2, a=true, b=false
+     i=34, j=2, a=false, b=false
+     
+   If you replace the line 7 with "b=true;", then the executing result is
+     i=34, j=2, a=true, b=true
+     i=2, j=2, a=true, b=true
+ */

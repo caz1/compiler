@@ -1,0 +1,15 @@
+int main() {
+	int i, b=1;
+
+	;
+	write ("Please input an integer ");
+	read(i); 
+	if (i < 0 && (b=-1)<0) ;
+	else if (i == 0 && (b=0)==0) ;
+	else ;;
+	write (i);
+	write ("\nb = ");
+	write (b);
+	write ("\n");
+	return 1;
+}

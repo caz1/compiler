@@ -1,0 +1,16 @@
+int factorial(int n) {
+	int fact;
+
+	fact=n;
+	while (n>1) {
+		n = n-1;
+		fact = fact * n;
+}	
+
+void main() {
+	int fact;
+
+	fact= factorial(5);
+	print (fact); 
+	
+}

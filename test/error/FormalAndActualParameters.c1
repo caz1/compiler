@@ -1,0 +1,27 @@
+
+int factorial(int n) {
+
+	if(n<0) {
+		write("The number is less than zero");
+		return 0;
+	}
+	if(n==0) return 1;
+
+	int fact;
+
+	fact=n;
+	while (n>1) {
+		n = n-1;
+		fact = fact * n;
+	}
+	return fact;
+}
+
+void main() {
+	int fact;
+
+	fact= factorial(5,10);
+	fact= factorial(5>10);
+	fact= factorial("string");
+	print (fact); 
+}

@@ -1,0 +1,18 @@
+int main(){
+
+	int aa[2] = { 10, 20};
+	bool bb[2] = {true, false}; 
+	float cc[2] = {11.2, 22.3}; 
+    
+	//int     
+	write(aa[0]);    write("\n");
+	write(aa[1]);    write("\n");
+
+	//bool     
+	write(bb[0]);    write("\n");
+	write(bb[1]);    write("\n"); 
+	
+	//float
+	write(cc[0]);    write("\n");
+	write(cc[1]);    write("\n");  
+}

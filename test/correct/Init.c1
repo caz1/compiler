@@ -1,0 +1,10 @@
+int i;
+bool b;
+int ii[3];
+bool bb[3][3];
+int main() {
+	if (i!=0)     write("error_1\n");
+	if (b!=false) write("error_2\n");
+	if (ii[0]!=0)     write("error_4\n");
+	if (bb[0][0]!=false) write("error_5\n");
+}

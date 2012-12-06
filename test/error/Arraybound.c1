@@ -1,0 +1,10 @@
+int negative10() {
+	return -10;
+}
+void main() {
+	bool [2] b;
+	b[1] = b[2] = true;
+	int i = -1;
+	write(b[i*1]);
+	write(b[negative10()]);
+}

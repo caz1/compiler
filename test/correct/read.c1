@@ -1,0 +1,32 @@
+   
+int main() 
+{
+	int i=0;
+	int a1;
+	int  a2[10];
+	bool b1;
+	bool  b2[5];
+	
+	//a1
+	write("Please input an integer a1: ");
+	write("\n");
+	read(a1);
+	write(a1);
+	write("\n");
+     
+	//a2
+	write("Please input 10 integers: ");
+	while(i<10){
+		read(a2[i]);
+		i=i+1;
+	}
+	i=0;
+	while(i<10)
+	{
+		write(a2[i]);
+		write("\n");
+		i=i+1;
+	}
+	
+	return 1;
+}

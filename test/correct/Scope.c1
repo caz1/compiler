@@ -1,0 +1,45 @@
+int a = 2;
+int b = 4;
+     
+void f(int a) 
+{
+	int c = 64;
+	{
+		int b = 16;
+		if (b!=16)  write("error"); // refer to the local variable
+							// b in this block
+	}
+	{
+		int c = 32;
+		if (c!=32)  write("error"); // refer to the local variable
+							 // c in this block
+	}
+	
+	if (c!=64)  write("error");  // refer to the local variable c
+	
+	return;
+}
+
+int main() 
+{  
+	int a = 4;
+	int b = 8;
+	{
+		int a = 4;
+		int b = 8;
+		if (a!=4) write("error");  // refer to the local variable i1
+		if (b!=8) write("error");  // refer to the local variable i2
+	}
+	
+	{
+		int a = 8;
+		if (a!=8) write("error");  // refer to the local variable
+					   // a in this block
+	}
+	
+	if (a!=4) write("error");  // refer to the local variable a
+	
+	f(b);
+	return 1; 
+}
+   

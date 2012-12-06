@@ -1,0 +1,24 @@
+bool get(bool b) {
+	return b;
+}
+    
+bool get_first(bool n[]) {
+	return n[0];
+}
+
+void main() {
+	bool b = false;
+	int bb[] = {true, false};
+
+	b = get(); // wrong
+	b = get(5 == 10, true); // wrong
+	b = get(5); // wrong
+	b = get("string"); // wrong
+	b = get(bb); // wrong
+	b = get(bb[0]);
+	b = get_first(true);  // wrong
+	b = get_first({true});  // wrong (in syntax parsing)
+	b = get_first(b); // wrong
+	b = get_first(bb[0]); // wrong
+	b = get_first(bb); // wrong
+}

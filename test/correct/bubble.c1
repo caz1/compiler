@@ -1,0 +1,43 @@
+int st[10]={0,13,7,9,34,56,43,98,123,100};
+ 
+int main()
+{   
+	int i=0;
+	int j=0;
+	int length=10;
+	while(i<length)
+	{	
+		j=0;
+		while(j<length-i-1)
+		{ 
+			if(st[j]>st[j+1])
+			{ 
+			int temp=st[j]; 
+			st[j]=st[j+1]; 
+			st[j+1]=temp; 
+			} 
+			j=j+1;
+		} 
+		i=i+1;
+	} 
+	i=0;
+	while(i<length)
+	{ 
+		write(st[i]);
+		write("\n");
+		i=i+1;
+	} 
+}   
+/**
+输出结果
+0
+7
+9
+13
+34
+43
+56
+98
+100
+123
+*/

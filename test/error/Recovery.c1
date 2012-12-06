@@ -1,0 +1,14 @@
+int gcd(int p, int q) {
+
+	fi(p%q==0) return q;
+	else return gcd(q, p%q);
+	return 0;
+}
+
+void main() {
+	int g;
+
+	g = gcd(100,15);
+	print (g); 
+	return;
+}

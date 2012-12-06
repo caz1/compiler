@@ -1,0 +1,39 @@
+int i=1;
+int j=2;
+bool t = true;
+int ia[4]={3,4,5,6};
+int ia_length=4;
+bool bl[2];
+	
+void print_all() {
+    write("\ni = "); write(i);
+    write("\nj = "); write(j);
+    write("\nt = "); write(t);
+    
+    write("\nia = "); 
+    write(ia[0]); 
+	write("\n");
+    write(ia[1]);
+	write("\n");
+    write(ia[2]);
+	write("\n");
+    write(ia[3]);
+    write("\nsubject = ");
+    write("\nbool = ");
+    write(bl[0]); write(", "); write(bl[1]);
+}
+
+int main() {
+    
+    print_all();
+	
+    j = (i) = (ia_length-4) % ia_length;
+    t = true;
+    ia[0] = 0; 
+    ia[1] = ia[1] -1; ia[1] =(ia[1] + (ia[1] =ia[1] + 3));
+    ia[2] = ia[ia_length - 1] = ia[1] - ia_length ;
+    bl[1] = !bl[0];
+       
+    print_all();
+}
+	

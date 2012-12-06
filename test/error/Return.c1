@@ -1,0 +1,35 @@
+int inc(int n) { // wrong
+	n = n + 1;
+}
+    
+int dec(int n) { // wrong
+	n = n - 1;
+	return n > 0;
+}
+    
+void nothing(int n) { // wrong
+	return n;
+}
+    
+int get(int n) { // wrong or warning
+	return n;
+	return n;
+}
+
+bool positive(int n) { // wrong
+	if (n > 0) return true;
+	else if (n < 0) return false;
+}
+    
+void main() {
+	bool b;
+	int n;
+	write("Please input an integer: ");
+	read(n);
+	n = inc(n);
+	b = dec(n); // wrong
+	b = get(n); // wrong
+	n = nothing(n); // wrong
+	n = positove(n); // wrong
+	write(get(n) + true); // wrong
+}

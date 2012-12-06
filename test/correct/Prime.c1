@@ -1,0 +1,45 @@
+void generatePrime() {
+	bool data[51]; // true represents the number is not prime.
+	int data_length=51;
+	int k=0;
+	int i=3;
+	while (k<data_length)
+	{
+		data[k]=false;
+		k=k+1;
+	}
+	write("here\n");
+	data[0] = true; // 0 is not prime.
+	data[1] = true; // 1 is not prime.
+	data[2] = false; // 2 is prime.
+	while(i<data_length)
+	{
+		int j=i;
+		k=2;
+		while(k<j)
+		{   
+			if (!data[j] && (j % k == 0)) 
+			{
+			data[j] = true;
+			}
+			k=k+1;
+		}
+		i=i+1;
+	}
+	i=0;
+	while(i<data_length)
+	{
+		if (!data[i])
+		{
+			write(i);
+			write(" is prime.\n");
+		}
+		i=i+1;
+	}
+}
+    
+int main() 
+    {
+	write("start\n");
+	generatePrime();
+}

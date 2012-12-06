@@ -1,0 +1,32 @@
+int main() {
+	int i = 30;
+	int j = 25;
+	int k = 20;
+	int l = 15;
+	int m = 10;
+	int n = 5;
+	int a = 4;
+	int b = 3;
+	int c = 2;
+	int d = 1;
+	i = j*k;
+	j = j*l;
+	k = m*k;
+	l = 2*3;
+	m = 2*n;
+	n = a*2;
+	a = a*a;
+	b = b*(b*c);
+	c = c*c*d;
+	d = d*d*d;
+	write(i);write("\t");write(500); write("\n"); 
+	write(j);write("\t");write(375); write("\n"); 
+	write(k);write("\t");write(200); write("\n"); 
+	write(l);write("\t");write(6); write("\n"); 
+	write(m);write("\t"); write(10);write("\n"); 
+	write(n);write("\t"); write(8);write("\n"); 
+	write(a);write("\t");write(16); write("\n"); 
+	write(b);write("\t"); write(18);write("\n"); 
+	write(c);write("\t");write(4); write("\n"); 
+	write(d);write("\t");write(1); write("\n"); 
+}

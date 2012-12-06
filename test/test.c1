@@ -1,0 +1,28 @@
+typedef int d[555],e[6];
+typedef float fv[4],ff[6]=6;/*error here*/
+typedef const float asdfg;
+const int a[6]={1,2,3,4,5,};
+int c=7,hex=0x1A;
+int bbb(),ccceee(int c),def=5;
+void ghi(int ,float ),defg(void),voidvar;/*error here*/
+int testarg(int []);/*error here*/
+int testarg1(int a[]);/*error here*/
+int testarg2(int a[2]);/*error here*/
+int [8] testret();/*error here*/
+float testdouble();
+int[5] ttt(void )/* error here */
+{
+	int a = 5,efg,defg;
+	b ff;
+	b cc ff;//error here
+	while(a<100)
+	{
+		int efg;
+        	putchar(a);
+		a=a+1;
+		putc();
+	}
+	!bbb();
+	
+	int d;/* error here */
+}

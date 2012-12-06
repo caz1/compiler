@@ -1,0 +1,61 @@
+
+void FWhile() {
+	while (false);
+	print ("FWhile");
+}
+int TWhile() {
+	while (true) {
+	    print ("TWhile"); return 0;
+}
+}
+int TIf() {
+	if (true) { write("TIf"); return 0; }
+	return 1;
+}
+int FIf() {
+	if (false);
+	else {write("FIf"); return 0; }
+	//return 1;
+}
+int BreakNoReturn() {
+	while (true) {
+	    if (true) break;
+	    else continue;
+	    return 0; //unreachable statement.
+}
+	//return 1;
+}
+int ContinueNoReturn() {
+	while (true) {
+	    if (false) break;
+	    else continue;
+	    return 0; //unreachable statement.
+}
+	//return 1;
+}
+int NoReturn() {
+	bool i = false;
+	while (true) {
+	    if (i) break;
+	    else continue;
+	    return 0; //unreachable statement.
+}
+	//return 1;
+}
+void BreakContinueReturn() {
+	while (true) {
+	    break;
+	    continue; //unreachable statement.
+	    return;	 //unreachable statement.
+	}
+}
+void main() {
+	FWhile();
+	TWhile();
+	TIf();
+	FIf();
+	BreakNoReturn();
+	ContinueNoReturn();
+	NoReturn();
+	BreakContinueReturn();
+}

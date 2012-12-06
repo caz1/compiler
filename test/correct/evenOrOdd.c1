@@ -1,0 +1,33 @@
+int main() {
+	int a[10];
+	int i;
+	int j;
+
+	i=0;
+	write("Please input 10 integers:\n");
+	while (i<10) {
+		read(a[i]);
+		i=i+1;
+	}
+	
+	write("Print 10 integers in reverse order:\n");
+	while (i>0) {
+		i=i-1;
+		write(a[i]);
+		if (a[i]%2==0) {
+			write(" is an even!\n");
+		}else {
+			write(" is an odd!\n");
+		}
+	}
+
+	j=0;
+	while (i<10) {
+		j=j+a[i];
+		if (a[i]>0)  ; else ;
+		i=i+1;
+	}
+	write("Summary of the 10 integers is ");
+	write(j);
+	return 1;
+}
