@@ -1,0 +1,21 @@
+**********************************
+Source files used in this project:
+**********************************
+gcd.c 		find the gcd()
+
+
+
+
+******
+Files:
+******
+
+Makefile	Build the output file 	
+README		This file
+src/ 		Source files wroten in C1
+bin/		Shell scripts
+test/ 		Test files
+doc/		Doc about this project
+
+ 
+

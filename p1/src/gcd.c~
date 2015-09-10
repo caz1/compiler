@@ -1,0 +1,16 @@
+const int a = 128, b = 96;
+void main()
+{
+    int i, j, temp, result;
+    
+    i = a; 
+    j = b;
+    while (i%j)
+    {
+	temp = i%j;
+	i = j;
+	j = temp;
+    }
+    result = j;
+    printf("the gcd of %d and %d is %d\n", a, b, result);
+}
