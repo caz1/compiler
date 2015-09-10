@@ -18,7 +18,6 @@ void main()
     while (i != range)
     {
 	j = 2 * i;
-	temp = range / i;
 	while (j < range)
 	{
 	    isPrime[j] = 0;

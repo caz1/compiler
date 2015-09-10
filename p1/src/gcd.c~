@@ -1,16 +1,29 @@
-const int a = 128, b = 96;
+
 void main()
 {
-    int i, j, temp, result;
+    int i, j, temp, a, b;
+
+    scanf("%d%d", &a, &b);  
     
-    i = a; 
-    j = b;
+    if (a > b)
+    {
+	i = a; 
+    	j = b;
+    }
+    else
+    {
+   	i = b;
+	j = a;
+    }
+
     while (i%j)
     {
-	temp = i%j;
+	temp = i;
 	i = j;
-	j = temp;
+	j = temp%i;
     }
-    result = j;
-    printf("the gcd of %d and %d is %d\n", a, b, result);
+    
+    printf("The gcd of %d and %d is %d\n", a, b, j);
 }
+
+

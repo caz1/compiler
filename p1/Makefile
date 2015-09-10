@@ -9,11 +9,11 @@ all: $(EXES)
 
 
 prime: src/prime.c
-	$(CC) -c src/prime.c -o prime
+	$(CC) src/prime.c -o prime
 gcd: src/gcd.c
-	$(CC) -c src/gcd.c -o gcd
+	$(CC) src/gcd.c -o gcd
 sort: src/sort.c
-	$(CC) -c src/sort.c -o sort	
+	$(CC) src/sort.c -o sort	
 
 clean: 
 	rm -f $(EXES)

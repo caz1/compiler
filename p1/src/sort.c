@@ -1,21 +1,9 @@
+int a[] = {1, 3, 5, 2+5, 3, 10, 7*2-1, 7%4, 6, 9};
+const int length = 10;
 
-void main()
+void sort()
 {
-    const int a[] = {1, 3, 5, 2+5, 3, 10, 7*2-1, 7%4, 6, 9};
     int i, j, max, temp, length;
-
-    length = 10;
-    i = 0;
-    printf("Before sorting:\n");
-    while (i != length)
-    {
-	printf("%d\t", a[i]);
-	i = i + 1;
-    }
-    printf("\n");
-
-    
-
     i = 0; 
     j = 0;
     while (i < length)
@@ -35,6 +23,23 @@ void main()
 	}
 	i = i + 1;
     }
+}
+
+
+void main()
+{
+    int i;
+
+    i = 0;
+    printf("Before sorting:\n");
+    while (i != length)
+    {
+	printf("%d\t", a[i]);
+	i = i + 1;
+    }
+    printf("\n");
+
+    sort();
 
     i = 0;
     printf("After sotring:\n");

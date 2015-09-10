@@ -19,7 +19,7 @@ void main()
     {
 	j = 2 * i;
 	temp = range / i;
-	while (j < i)
+	while (j < range)
 	{
 	    isPrime[j] = 0;
 	    j = j + i;

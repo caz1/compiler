@@ -1,10 +1,20 @@
-const int a = 128, b = 96;
+
 void main()
 {
-    int i, j, temp;
+    int i, j, temp, a, b;
+    printf("input two integers:");
+    scanf("%d%d", &a, &b);  
     
-    i = a; 
-    j = b;
+    if (a > b)
+    {
+	i = a; 
+    	j = b;
+    }
+    else
+    {
+   	i = b;
+	j = a;
+    }
 
     while (i%j)
     {
