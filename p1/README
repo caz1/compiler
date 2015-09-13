@@ -5,8 +5,10 @@ Test the programs:
 Before running the programs, compile the source file:
     linux> make
 Running the programs:
-    linux> cd src
-    
+    linux> ./gcd
+    linux> ./sort
+    linux> ./prime
+They will print the output. And for the prime program, you should input two integers and it will print the gcd of them.    
 
 OR just type:
     linux> ./bin/test.sh
@@ -25,11 +27,11 @@ sort.c 		Use select sort to sort an array with descending order
 Files:
 ******
 
-Makefile	Build the output file 	
+Makefile	Build the executable files 	
 README		This file
 src/ 		Source files wroten in C1
 bin/		Shell scripts
-test/ 		Test files
+test/ 		Test files, contain a unrelated 
 doc/		Doc about this project
 
  
