@@ -1,0 +1,44 @@
+#ifndef TOKEN_H_
+#define TOKEN_H_
+
+
+#define NUL
+#define NUMBER
+#define ID
+#define PLUS
+#define MINUS
+#define MULT
+#define DIV
+#define MOD
+#define EQ
+#define NE
+#define LT
+#define LE
+#define GT
+#define GE
+#define MAIN
+#define RELOP
+#define BINOP
+#define COMMA
+#define SEMICOLON
+#define LBRACKET
+#define RBRACKET
+#define LPAR
+#define RPAR
+#define LBRACE
+#define RBRACE
+#define 
+#define WHILE
+#define IF
+#define CONST
+#define INT
+#define ELSE
+#define RELOP
+
+#include<stdio.h>
+
+
+
+
+
+#endif
