@@ -37,20 +37,21 @@ static int gettok() {
 
   //support for octal and hexadecimal number
   if (LastChar == '0') {
+    ThisChar = ' ';
     std::string Num;
     LastChar = getchar();
     while (isdigit(LastChar) && LastChar != '9' && LastChar != '8') {
       Num += LastChar;
       LastChar = getchar();
     }
-	//std::cout << strtol(Num.c_str(), 0, 8) << std::endl;
+
     if (Num.length() > 0 && strtol(Num.c_str(), 0, 8) != 0) {
 	  NumVal = strtol(Num.c_str(), 0, 8);
 	  return tok_number; 
 	}   
 	if (LastChar == 'x' || LastChar == 'X') {//support hexadecimal number
 	  ThisChar = 'x';
-      LastChar = getchar();
+	  LastChar = getchar();
 	  while (isxdigit(LastChar)) {
  		Num += LastChar;
 		LastChar = getchar();

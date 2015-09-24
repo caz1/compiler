@@ -1,42 +1,8 @@
 %{
-#define NUL	0
-#define NUMBER	1
-#define ID	2
-#define PLUS	3
-#define MINUS	4
-#define MULT	5
-#define DIV	6	
-#define MOD	7
-#define EQ	8
-#define NE	9
-#define LT	10	
-#define LE	11
-#define GT	12	
-#define GE	13
-#define MAIN	14
-#define RELOP	15
-#define BINOP	16
-#define COMMA	17
-#define SEMICOLON	18
-#define LBRACKET	19
-#define RBRACKET	20
-#define LPAR	21
-#define RPAR	22
-#define LBRACE	23
-#define RBRACE	24
-#define WHILE	25
-#define IF	26	
-#define CONST	27
-#define INT	28
-#define ELSE	29
-
+#include"token.h"
 %}
-%option main noyywrap
 
-
-
-
-delim	[ \n\t]
+delim	[ \t]
 ws	{delim}+
 digit	[0-9]
 letter	[a-zA-Z]
@@ -45,38 +11,51 @@ number	{digit}+
 
 %%
 
-{ws}	{}
+
+
+{ws}	{/*skip it*/}
 while	{return(WHILE);}
 const	{return(CONST);}
-if	{return(IF);}
+if  	{return(IF);}
 else	{return(ELSE);}
-int	{return(INT);}
+int	    {return(INT);}
 
-"<"	{yylval=LT; return(RELOP);}
-"=="	{}
-"<="	{yylval=LE; return(RELOP);}
-">"	{yylval=GT; return(RELOP);}
-">="	{yylval=GE; return(RELOP);}
-"!="	{yylval=NE; return(RELOP);}
-"="	{yylval=EQ; return(RELOP);}
-"("	{return(LPAR);}
-")"	{return(RPAR);}
-"{"	{return(LBRACE);}
-"}"	{return(RBRACE);}
-"["	{return(LBRACKET);}
-"]"	{return(RBRACKET);}
-","	{return(COMMA);}
-";"	{return(SEMICOLON);}
-"+"	{yylval=PLUS; return(BINOP);}
-"-"	{yylval=MINUS;return(BINOP);}
-"*"	{yylval=MULT; return(BINOP);}
-"/"	{yylval=DIV; return(BINOP);}
-"%"	{yylval=MOD; return(BINOP);}
+{number}	{num=atoi(yytext); return(NUMBER);}
+{ID}	{identifier=yytext; return(ID);}
+
+"\n"    {printf("\n");}
+
+"\""    {return(QUOTE);}
+"\\"    {return(SLASH);}
+"<"	    {return(LT);}
+"=="	{return(ISEQ);}
+"<="	{return(LE);}
+">"	    {return(GT);}
+">="	{return(GE);}
+"!="	{return(NE);}
+"="	    {return(EQ);}
+"("	    {return(LPAR);}
+")"	    {return(RPAR);}
+"{"	    {return(LBRACE);}
+"}"	    {return(RBRACE);}
+"["	    {return(LBRACKET);}
+"]"	    {return(RBRACKET);}
+","	    {return(COMMA);}
+";"	    {return(SEMICOLON);}
+"+"	    {return(PLUS);}
+"-"	    {return(MINUS);}
+"*"	    {return(MULT);}
+"/"	    {return(DIV);}
+"%"	    {return(MOD);}
 <<EOF>>	{yyterminate();}
 
 .	{printf("Illegal character");}
 
-
 %%
+
+int yywrap(){
+    return 1;
+}
+
 
 

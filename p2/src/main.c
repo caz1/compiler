@@ -1,7 +1,7 @@
 #include"token.h"
 
-int num;
-char *identifier;
+int num;	// store the number 
+char *identifier; // store the identifier
 extern FILE* yyin;
 extern int yylex();
 
@@ -43,18 +43,24 @@ void printToken(int token, FILE *fp){
 }
 
 int main(int argc, char **argv){
-	
 	char *infilename;
 	FILE *fp;
 	int token;
-	printf("please enter the source file name:");
-	scanf("%s", infilename);
+	if (argc == 1) {
+		printf("please enter the source file name:");		
+		cin >> infilename;
+	}
+	else if (argc == 2)
+		infilename = argv[1];
+
 
 	if ( (fp=fopen(infilename, "r"))==NULL ) {
 		printf("File %s can't be opened.\n", infilename);
 		exit(1);
 	}
 
+	printf("/*****************************\n");
+	printf("This is the lex of %s\n", infilename);
 	yyin = fp;
 	while (token = yylex())
 		printToken(token, stdout);
