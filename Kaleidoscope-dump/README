@@ -1,0 +1,25 @@
+Install Graphviz
+    $ sudo apt-get install graphviz
+
+Run
+    $ make
+    $ bin/toy
+    Input some expressions, then press ctrl-D.
+    $ graphviz -Tpng toy.dot -o watch.png
+
+Test
+    You can test following expressions while running bin/toy
+
+    > def sub(a b) a-b;
+    > if (1<2) then sub(2,1) else sub(1,2);
+
+    or
+
+    > extern printchard(ch);
+    > for i=0, i<10, 1.0 in printchard(42);
+
+    Press Ctrl-D to terminate, it will generate toy.dot
+    Run trans.sh to get watch.png
+
+Based on LLVM Tutorial: http://llvm.org/releases/3.6.0/docs/tutorial/index.html
+Modified by Yuyang Sang (sangyy@mail.ustc.edu.cn)
