@@ -1,0 +1,4 @@
+P1
+使用了Makefile, shell，文档挺全。
+gcd.c中的while循环条件不能是i%j，请参考C1语法。
+以后不要提交带~的文件。
