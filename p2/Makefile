@@ -4,6 +4,7 @@ LEX = flex
 PROGRAM = c1c
 BIN = bin
 SRC = src
+INCLUDE = include
 TEST = test
 CONF = config
 CFLAGS = 
@@ -24,11 +25,11 @@ ${SRC}/lexer.cpp: ${CONF}/c1.lex
 	mkdir -p ${SRC}	
 	@${LEX} ${LFLAGS} -o $@ $<
 
-${BIN}/lexer.o: ${SRC}/lexer.cpp ${SRC}/token.h
+${BIN}/lexer.o: ${SRC}/lexer.cpp ${INCLUDE}/token.h
 	mkdir -p ${SRC}
 	${CC} ${CFLAGS} -c -o $@ $<
 
-${BIN}/main.o: ${SRC}/main.c ${SRC}/token.h
+${BIN}/main.o: ${SRC}/main.c ${INCLUDE}/token.h
 	mkdir -p ${SRC}
 	@${CC} ${CFLAGS} -c -o $@ $<
 
