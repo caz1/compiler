@@ -6,7 +6,7 @@ delim	[ \t]
 ws	{delim}+
 digit	[0-9]
 letter	[a-zA-Z]
-ID	([_]|{letter})+({letter}|{digit})*
+ID	([_]|{letter})({letter}|{digit})*
 number	{digit}+
 
 %%

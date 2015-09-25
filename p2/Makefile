@@ -20,13 +20,13 @@ ${BIN}/c1c: ${BIN}/lexer.o ${BIN}/main.o
 	mkdir -p ${BIN}
 	@${CC} ${CFLAGS} -o $@ $^
 
-${SRC}/lexer.cpp: ${SRC}/c1.lex
-	mkdir -p \${SRC}
+${SRC}/lexer.cpp: ${CONF}/c1.lex
+	mkdir -p ${SRC}	
 	@${LEX} ${LFLAGS} -o $@ $<
 
 ${BIN}/lexer.o: ${SRC}/lexer.cpp ${SRC}/token.h
 	mkdir -p ${SRC}
-	@${CC} ${CFLAGS} -c -o $@ $<
+	${CC} ${CFLAGS} -c -o $@ $<
 
 ${BIN}/main.o: ${SRC}/main.c ${SRC}/token.h
 	mkdir -p ${SRC}
@@ -42,4 +42,4 @@ run:
 
 .PHONY: clean
 clean:
-	-rm -f ${BIN}/* ${SRC}/lexer.cpp
+	-rm -f ${BIN}/* ${SRC}/lexer.cpp log

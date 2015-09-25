@@ -30,6 +30,7 @@ static double NumVal;              // Filled in if tok_number
 static int gettok() {
   static int LastChar = ' ';
   static int ThisChar = ' ';
+  static int PointCount = 0;
 
   // Skip any whitespace.
   while (isspace(LastChar))
@@ -79,9 +80,21 @@ static int gettok() {
 
   if (isdigit(LastChar) || LastChar == '.') {   // Number: [0-9.]+
     std::string NumStr;
+    if (LastChar == '.') PointCount++;
     do {
       NumStr += LastChar;
       LastChar = getchar();
+      if (LastChar == '.') PointCount++;
+      if (PointCount > 1) { // here is the code support for multiple '.'
+	size_t first, second;
+	first = NumStr.find('.', 0);
+	second = NumStr.find('.', first);
+	while (second != first)
+	  ungetc(NumStr[--second], stdin); //push the digit back after the first '.'
+	PointCount = 0;
+	NumVal = strtod(NumStr.c_str(), 0);
+	return tok_number;
+      }
     } while (isdigit(LastChar) || LastChar == '.');
     
     NumVal = strtod(NumStr.c_str(), 0);
