@@ -5,7 +5,7 @@ Run
     $ make
     $ bin/toy
     Input some expressions, then press ctrl-D.
-    $ graphviz -Tpng toy.dot -o watch.png
+    $ dot -Tpng toy.dot -o watch.png
 
 Test
     You can test following expressions while running bin/toy

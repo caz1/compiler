@@ -20,7 +20,7 @@ class ExprAST {
 public:
     virtual ~ExprAST() {}
     virtual Value *Codegen() = 0;
-    virtual int dumpdot(DumpDOT *dumper);
+    virtual int dumpdot(DumpDOT *dumper) = 0;
 };
 
 /// NumberExprAST - Expression class for numeric literals like "1.0".
