@@ -1,0 +1,17 @@
+##############################################
+#These are the test functions for the project.
+##############################################
+
+extern putchard(ch)
+
+# This is the functions for while expressions.
+
+
+while var x = 1 in x < 100 x = x + 1;
+
+def fib(x)
+if (x < 3) then 1
+else 
+while var c in c < x c = c + 1;
+
+

@@ -1,0 +1,34 @@
+******************
+Test the programs:
+******************
+
+Before running the programs, compile the source file:
+    linux> make
+Running the programs:
+    linux> make run
+
+It will run the executable files with test case written in advance automatically and show the dot file.
+	
+**********************************
+Source files used in this project:
+**********************************
+
+ast.h		define some basic class for the project
+dumpdot.h	declaration of class DUMPDOT  
+dumpdot.cpp	the implementations of dumpdot function for each class 
+toy.cpp		main file I've edited 
+
+
+******
+Files:
+******
+
+Makefile	Build the executable files 	
+README		This file
+src/ 		Source files for this project
+bin/		Shell scripts(no for this project because it is more convenient to write it into Makefile)
+test/ 		Test files for test the correctness of "while" extension
+doc/		Doc for this project
+include/	head files for this project
+ 
+
