@@ -13,9 +13,9 @@ bin/dumpdot.o: src/dumpdot.cpp include/dumpdot.h
 	@mkdir -p bin
 	$(CC) -c -o $@ $< $(CFLAGS) `$(LLVMCONF) --cxxflags`
 
-test:
-	bin/toy << test/testFunctions
-
+run:
+	bin/toy < test/testFunctions
+	dot -Tpng toy.dot -o watch.png
 
 .PHONY:clean
 clean:

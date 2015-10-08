@@ -9,9 +9,13 @@ extern putchard(ch)
 
 while var x = 1 in x < 100 x = x + 1;
 
-def fib(x)
-if (x < 3) then 1
+
+
+def f(x)
+if (x < 3)
+  then 2
 else 
-while var c in c < x c = c + 1;
+  while var i = 0 in x < for j = 0, j < 100, 1.0 in j = j + 1
+    x = x - i
 
 
