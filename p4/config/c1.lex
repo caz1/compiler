@@ -4,11 +4,13 @@
 #include "c1.tab.h"
 extern int num;
 extern char *ident;
-static void comment();
+
 int yycolumn = 1;
+int left_paren = 0;
 #define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
     yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
     yycolumn += yyleng;
+char line[100];
 %}
 
 %option yylineno
@@ -21,41 +23,41 @@ ID	([_]|{letter})({letter}|{digit})*
 number	{digit}+
 
 %%
-"/*"    { comment(); }
+
 "//".* 	{}
-{ws}	{/*skip it*/}
-while	{return(WHILE);}
-const	{return(CONST);}
-if  	{return(IF);}
-else	{return(ELSE);}
-int	    {return(INT);}
-void	{return(VOID);}
-{number}	{num=atoi(yytext); return(NUMBER);}
-{ID}	{ident=yytext; return(ID);}
+{ws}	{strcat(line, yytext);}
+while	{strcat(line, "while"); return(WHILE);}
+const	{strcat(line, "const"); return(CONST);}
+if  	{strcat(line, "if"); return(IF);}
+else	{strcat(line, "else"); return(ELSE);}
+int	{strcat(line, "int"); return(INT);}
+void	{strcat(line, "void"); return(VOID);}
+{number}	{strcat(line, yytext); num=atoi(yytext); return(NUMBER);}
+{ID}	{strcat(line, yytext); ident=yytext; return(ID);}
 
-"\n"    {printf("\n");}
-'!'	{return(ODD);}
+"\n"    {printf("%s\n", line); yycolumn = 1; memset(line, 0, 100);}
+'!'	{strcat(line, '!'); return(ODD);}
 
-"<"	    {return(LT);}
-"=="	{return(ISEQ);}
-"<="	{return(LE);}
-">"	    {return(GT);}
-">="	{return(GE);}
-"!="	{return(NE);}
-"="	    {return(EQ);}
-"("	    {return(LPAR);}
-")"	    {return(RPAR);}
-"{"	    {return(LBRACE);}
-"}"	    {return(RBRACE);}
-"["	    {return(LBRACKET);}
-"]"	    {return(RBRACKET);}
-","	    {return(COMMA);}
-";"	    {return(SEMICOLON);}
-"+"	    {return(PLUS);}
-"-"	    {return(MINUS);}
-"*"	    {return(MULT);}
-"/"	    {return(DIV);}
-"%"	    {return(MOD);}
+"<"	{strcat(line, '<'); return(LT);}
+"=="	{strcat(line, "=="); return(ISEQ);}
+"<="	{strcat(line, "<="); return(LE);}
+">"	{strcat(line, ">"); return(GT);}
+">="	{strcat(line, ">="); return(GE);}
+"!="	{strcat(line, "!="); return(NE);}
+"="	    {strcat(line, "="); return(EQ);}
+"("	    {strcat(line, "("); left_paren++; return(LPAR);}
+")"	    {strcat(line, ")"); left_paren--; return(RPAR);}
+"{"	    {strcat(line, "{"); return(LBRACE);}
+"}"	    {strcat(line, "}"); return(RBRACE);}
+"["	    {strcat(line, "["); return(LBRACKET);}
+"]"	    {strcat(line, "]"); return(RBRACKET);}
+","	    {strcat(line, ","); return(COMMA);}
+";"	    {strcat(line, ";"); return(SEMICOLON);}
+"+"	    {strcat(line, "+"); return(PLUS);}
+"-"	    {strcat(line, "-"); return(MINUS);}
+"*"	    {strcat(line, "*"); return(MULT);}
+"/"	    {strcat(line, "/"); return(DIV);}
+"%"	    {strcat(line, "%"); return(MOD);}
 <<EOF>>	{yyterminate();}
 
 .	{printf("Illegal character");}
@@ -66,22 +68,5 @@ int yywrap(){
     return 1;
 }
 
-static void comment(void)
-{
-    int c;
 
-    while ((c = input()) != 0)
-        if (c == '*')
-        {
-            while ((c = input()) == '*')
-                ;
-
-            if (c == '/')
-                return;
-
-            if (c == 0)
-                break;
-        }
-    yyerror("unterminated comment");
-}
 

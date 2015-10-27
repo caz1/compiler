@@ -19,7 +19,7 @@ char *errmsgs[] = {
  * of the specified error factory
  */
 Errmsg
-newError(ErrFactory errfactory, int type, int line, int col)
+newError(ErrFactory errfactory, int type, int line, int col, char *lineinfo)
 {
 	Errmsg new;
 	NEW0(new);
@@ -28,6 +28,7 @@ newError(ErrFactory errfactory, int type, int line, int col)
 	new->msg = errmsgs[type];
 	new->line = line;	
 	new->column = col;
+	strcpy(new->lineinfo, lineinfo);
 	listaddItem(errfactory->errors, new);	
 	return new;
 }
@@ -37,7 +38,7 @@ newError(ErrFactory errfactory, int type, int line, int col)
  * of the specified error factory
  */
 Errmsg
-newWarning(ErrFactory errfactory, int type, int line, int col)
+newWarning(ErrFactory errfactory, int type, int line, int col, char *lineinfo)
 {
 	Errmsg new;
 	NEW0(new);
@@ -46,6 +47,7 @@ newWarning(ErrFactory errfactory, int type, int line, int col)
 	new->msg = errmsgs[type];
 	new->line = line;	
 	new->column = col;
+	strcpy(new->lineinfo, lineinfo);
 	listaddItem(errfactory->warnings, new);	
 	return new;
 }
@@ -66,11 +68,19 @@ destroyErrmsg(Errmsg *msg)
 void
 dumpErrmsg(Errmsg error)
 {
+	int i = 0;
 	if ( error->isWarn )
 		printf(" \033[1;31;40mWarning\033[0m@");
 	else
 		printf(" \033[1;31;40mError\033[0m@");
 	printf("(%d, %d): %s\n", error->line, error->column, error->msg);
+	printf("%s\n", error->lineinfo);
+	for (i = 0; i < error->column - 1; i++)
+		if (error->lineinfo[i] == '\t')
+			printf("\t");
+		else 
+			printf(" ");
+	printf("^\n");
 }
 
 ErrFactory
@@ -91,8 +101,9 @@ dumpErrors(ErrFactory errfactory)
 {
 	List errors = errfactory->errors;
 	int i = 0, size = errors->size;
-	printf("\nFound %d errors at least:\n", 
-		size);
+	if (size > 0)	
+		printf("\nFound %d errors at least:\n", 
+			size);
 	
 	ListItr itr = getGListItr(errors, 0);
 	
@@ -108,8 +119,9 @@ dumpWarnings(ErrFactory errfactory)
 {
 	List warns = errfactory->warnings;
 	int i = 0, size = warns->size;
-	printf("\nFound %d warnings at least:\n", 
-		size);
+	if (size > 0)
+		printf("\nFound %d warnings at least:\n", 
+			size);
 	
 	ListItr itr = getGListItr(warns, 0);
 	

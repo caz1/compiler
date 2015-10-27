@@ -7,8 +7,9 @@
 ASTTree ast;	
 int num;
 char *ident;
-char *line;
 ErrFactory errfactory;
+extern int left_paren;
+extern char line[100];
 %}
 
 %union {
@@ -17,7 +18,7 @@ ErrFactory errfactory;
 	Loc location;
 }
 %locations
-
+%debug
 
 %token NUMBER ID
 %token PLUS MINUS MULT DIV MOD EQ ISEQ GT LT LE NE GE ODD
@@ -71,11 +72,8 @@ ConstDecl
 	  }
 	| CONST MultiConstDef SEMICOLON
 	  {
-		line = "const ";
-		strcat(line, );
-		strcat(line, ";");
-		newError(errfactory, MissingVarType, 
-			@1.last_line, @1.last_column);
+		newWarning(errfactory, MissingVarType, 
+			@1.last_line, @1.last_column, line);
 	  }
 	
 
@@ -121,7 +119,7 @@ MultiExp
 VarDecl	
 	: INT MultiVar SEMICOLON
 	  {
-		debug("VarDecl ::= int Var ;\n");
+		debug("VarDecl ::= int MultiVar ;\n");
 	  }
 
 
@@ -168,15 +166,14 @@ FuncDef
 	  {
 		debug("FuncDef ::= void ID() Block\n");
 	  }
-	| VOID ID RPAR Block
-	  {
-		newError(errfactory, MissingLParen,
-			@2.last_line, @2.last_column);
-	  }
 	| VOID ID LPAR Block
 	  {
 		newError(errfactory, MissingRParen,
-			@2.last_line, @2.last_column);
+			@2.last_line, @2.last_column, line);
+	  }
+	| VOID error Block
+	  {
+		
 	  }
 
 Block
@@ -216,16 +213,24 @@ Stmt
 	  {
 		debug("Stmt ::= ID() ;\n");
 	  }
-	| ID LPAR SEMICOLON
+	| ID error SEMICOLON
 	  {
-		newError(errfactory, MissingRParen,
-			@2.last_line, @2.last_column);
-	  }
-	| ID RPAR SEMICOLON
-	  {
-		newError(errfactory, MissingLParen,
-			@1.last_line, @1.last_column);
-	  }
+		debug ("ID()\n");
+		if (left_paren > 0)
+		{
+			newError(errfactory, MissingRParen, 
+			@2.last_line, @2.last_column, line);
+			left_paren--;
+		}		
+		else if (left_paren < 0)
+		{	
+			newError(errfactory, MissingLParen,
+			@2.first_line, @2.first_column, line);
+			left_paren++;		
+		}
+		yyerrok;  
+	}
+	  
 	| Block 
 	  {
 		debug("Stmt ::= Block\n");
@@ -234,13 +239,36 @@ Stmt
 	  {
 		debug("Stmt ::= IFStmt\n");
 	  }
-	| WHILE LPAR Cond RPAR Stmt
+	| WHILEStmt
 	  {
-		debug("Stmt ::= while(Cond) Stmt ;\n");
+		debug("Stmt ::= WHILEStmt\n");
 	  }
 	| SEMICOLON
 	  {
 		debug("Stmt ::= ;\n");
+	  }
+
+WHILEStmt
+	: WHILE LPAR Cond RPAR Stmt
+	  {
+		debug("Stmt ::= while(Cond) Stmt ;\n");
+	  }
+	| WHILE error Stmt
+	  {
+		debug ("while\n");
+		if (left_paren > 0)
+		{
+			newError(errfactory, MissingRParen, 
+			@1.last_line, @1.last_column, line);
+			left_paren--;
+		}		
+		else if (left_paren < 0)
+		{	
+			newError(errfactory, MissingLParen,
+			@1.last_line, @1.last_column, line);
+			left_paren++;		
+		}
+		yyerrok;
 	  }
 
 IFStmt
@@ -252,37 +280,34 @@ IFStmt
 	  {
 		debug("IFStmt ::= Matched\n");
 	  }
+	| IF error Stmt
+	  {
+		debug("error\n");
+		if (left_paren > 0)
+		{
+			newError(errfactory, MissingRParen, 
+			@2.last_line, @2.last_column, line);
+			left_paren--;
+		}		
+		else if (left_paren < 0)
+		{	
+			newError(errfactory, MissingLParen,
+			@2.last_line, @2.last_column, line);
+			left_paren++;		
+		}
+		yyerrok;
+	  }
 
 Matched
 	: IF LPAR Cond RPAR Stmt ELSE Stmt
 	  {
 		debug("Matched ::= IF Cond Stmt ELSE Stmt\n");
 	  }
-	| IF Cond RPAR Stmt ELSE Stmt
-	  {
-		newError(errfactory, MissingLParen,
-			@1.last_line, @1.last_column);
-	  }
-	| IF LPAR Cond Stmt ELSE Stmt
-	  {
-		newError(errfactory, MissingLParen,
-			@3.last_line, @3.last_column);
-	  }
 
 UnMatched
 	: IF LPAR Cond RPAR Stmt
 	  {
 		debug("UnMatched ::= IF Cond Stmt\n");	
-	  }
-	| IF Cond RPAR Stmt
-	  {
-		newError(errfactory, MissingLParen,
-			@1.last_line, @1.last_column);
-	  }
-	| IF LPAR Cond Stmt
-	  {
-		newError(errfactory, MissingLParen,
-			@3.last_line, @3.last_column);
 	  }
 
 
@@ -306,65 +331,46 @@ Cond
 	| Exp LT Exp
 	  {
 		debug("Cond ::= exp < exp\n");
-		//newCondExp($2, $1, $3);
-		//setLoc($$, (Loc)&(@$));
 	  }
 	| Exp ISEQ Exp
 	  {
 		debug("Cond ::= exp == exp\n");
-		//newCondExp($2, $1, $3);
-		//setLoc($$, (Loc)&(@$));
 	  }
 	| Exp LE Exp
 	  {
 		debug("Cond ::= exp <= exp\n");
-		//newCondExp($2, $1, $3);
-		//setLoc($$, (Loc)&(@$));
 	  }
 	| Exp GT Exp
 	  {
 		debug("Cond ::= exp > exp\n");
-		//newCondExp($2, $1, $3);
-		//setLoc($$, (Loc)&(@$));
 	  }
 	| Exp GE Exp
 	  {
 		debug("Cond ::= exp >= exp\n");
-		//newCondExp($2, $1, $3);
-		//setLoc($$, (Loc)&(@$));
 	  }	
 	| Exp NE Exp
 	  {
 		debug("Cond ::= exp != exp\n");
-		//newCondExp($2, $1, $3);
-		//setLoc($$, (Loc)&(@$));
 	  }
+
 
 
 Exp
 	: Exp PLUS Exp
 	  {
 		debug("exp ::= exp PLUS exp\n");
-	    //$$ = newInfixExp($2, $1, $3); 
-	   // setLoc($$, (Loc)&(@$));
 	  }
 	| Exp MINUS Exp
 	  {
 		debug("exp ::= exp MINUS exp\n");
-	    //$$ = newInfixExp($2, $1, $3); 
-	   //setLoc($$, (Loc)&(@$));
 	  }
 	| Exp MULT Exp 
 	  {
 		debug("exp ::= exp MULT exp\n");
-	    //$$ = newInfixExp($2, $1, $3); 
-	   // setLoc($$, (Loc)&(@$));
 	  }
 	| Exp DIV Exp 
 	  {
 		debug("exp ::= exp DIV exp\n");
-	    //$$ = newInfixExp($2, $1, $3); 
-	  //  setLoc($$, (Loc)&(@$));
 	  }
 	| Exp MOD Exp
 	  {
@@ -390,16 +396,6 @@ Exp
 	    //$$ = newParenExp($2);
 	   // setLoc($$, (Loc)&(@$));
 	  }
-	| LPAR Exp
-	  {
-		newError(errfactory, MissingRParen, 
-			@1.last_line, @1.last_column);
-	  }
-	| Exp RPAR
-	  {
-		newError(errfactory, MissingLParen, 
-			@1.last_line, @1.last_column);
-	  }
 	| LVal
 	  {
 		debug("Exp ::= LVal\n");
@@ -409,11 +405,43 @@ Exp
 	  {
 		debug("Exp ::= NUMBER\n");
 	  }
-
-
+	| LPAR error 
+	  {
+		debug("(err\n");
+		if (left_paren > 0)
+		{
+			newError(errfactory, MissingRParen, 
+			@2.last_line, @2.last_column, line);
+			left_paren--;
+		}		
+		else if (left_paren < 0)
+		{	
+			newError(errfactory, MissingLParen,
+			@2.last_line, @2.last_column, line);
+			left_paren++;		
+		}
+		yyerrok;
+	  }
+	| error RPAR
+	  {
+		debug("err)\n");
+		if (left_paren > 0)
+		{
+			newError(errfactory, MissingRParen, 
+			@1.last_line, @1.last_column, line);
+			left_paren--;
+		}		
+		else if (left_paren < 0)
+		{	
+			newError(errfactory, MissingLParen,
+			@1.first_line, @1.first_column, line);
+			left_paren++;		
+		}
+		yyerrok;
+	  }
 %%
 
-yyerror(char *message)
+void yyerror(char *message)
 {
 	printf("%s\n",message);
 }
@@ -430,6 +458,7 @@ int main(int argc, char *argv[])
 	errfactory = newErrFactory();
 	yyparse();
 	dumpErrors(errfactory);
+	dumpWarnings(errfactory);	
 	//destroyTable(&symtab);
 	//printf("\n\nFinished destroying symbolic table.\n");
 	return(0);

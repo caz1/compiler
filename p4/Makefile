@@ -2,7 +2,7 @@ CINC	 = -Iinclude
 CONF	 = config
 SRC	 = src
 BIN	 = bin
-UTILSRC  = $(SRC)/list.c $(SRC)/error.c $(SRC)/ast.c
+UTILSRC  = $(SRC)/error.c $(SRC)/list.c $(SRC)/ast.c
 
 CC       = gcc -g $(CINC)
 LEX      = flex -i -I 
@@ -64,7 +64,7 @@ asgn2ast:   $(CONF)/asgn2ast.y $(CONF)/asgn.lex
 c1:	$(CONF)/c1.y $(CONF)/c1.lex
 	$(YACC) -b c1 -o $(SRC)/c1.tab.c $(CONF)/c1.y
 	$(LEX) -o$(SRC)/c1.lex.c $(CONF)/c1.lex
-	$(CC) -o $(BIN)/c1 $(SRC)/c1.lex.c $(SRC)/c1.tab.c $(SRC)/symtab.c $(UTILSRC) -ll -lm	
+	$(CC) $(CINC) -o $(BIN)/c1 $(SRC)/c1.lex.c $(SRC)/c1.tab.c   $(SRC)/symtab.c $(UTILSRC) -ll -lm -w
 
 clean:
 	rm -f *.BAK *.o core *~* *.a 

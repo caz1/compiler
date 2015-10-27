@@ -14,7 +14,7 @@
 #ifdef DEBUG
 #define debug(a) printf("%s", a)
 #else
-#define debug(a)
+#define debug(a) printf("%s", a)
 #endif 
 
 typedef struct lnode{

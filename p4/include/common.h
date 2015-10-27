@@ -58,6 +58,7 @@ typedef struct errmsg {
 	char 	*msg;
 	int	line;
 	int	column;
+	char	lineinfo[100];
 } *Errmsg;
 
 // Error factory
@@ -67,8 +68,8 @@ typedef struct errfactory {
 } *ErrFactory;
 
 // Function declarations on error message management
-Errmsg	newError	(ErrFactory errfactory, int type, int line, int col);
-Errmsg	newWarning	(ErrFactory errfactory, int type, int line, int col);
+Errmsg	newError	(ErrFactory errfactory, int type, int line, int col, char *lineinfo);
+Errmsg	newWarning	(ErrFactory errfactory, int type, int line, int col, char *lineinfo);
 void	dumpErrmsg	(Errmsg error);
 ErrFactory newErrFactory();
 void	dumpErrors	(ErrFactory errfactory);

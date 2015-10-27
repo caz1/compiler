@@ -34,7 +34,7 @@
 # define YY_YY_SRC_C1_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -114,7 +114,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 13 "config/c1.y" /* yacc.c:1909  */
+#line 15 "config/c1.y" /* yacc.c:1909  */
 
 	char *name;
 	int  ival;
