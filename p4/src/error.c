@@ -19,7 +19,7 @@ char *errmsgs[] = {
  * of the specified error factory
  */
 Errmsg
-newError(ErrFactory errfactory, int type, int line, int col, char *lineinfo)
+newError(ErrFactory errfactory, int type, int line, int col, char *filename)
 {
 	Errmsg new;
 	NEW0(new);
@@ -28,7 +28,7 @@ newError(ErrFactory errfactory, int type, int line, int col, char *lineinfo)
 	new->msg = errmsgs[type];
 	new->line = line;	
 	new->column = col;
-	strcpy(new->lineinfo, lineinfo);
+	strcpy(new->filename, filename);
 	listaddItem(errfactory->errors, new);	
 	return new;
 }
@@ -38,7 +38,7 @@ newError(ErrFactory errfactory, int type, int line, int col, char *lineinfo)
  * of the specified error factory
  */
 Errmsg
-newWarning(ErrFactory errfactory, int type, int line, int col, char *lineinfo)
+newWarning(ErrFactory errfactory, int type, int line, int col, char *filename)
 {
 	Errmsg new;
 	NEW0(new);
@@ -47,7 +47,7 @@ newWarning(ErrFactory errfactory, int type, int line, int col, char *lineinfo)
 	new->msg = errmsgs[type];
 	new->line = line;	
 	new->column = col;
-	strcpy(new->lineinfo, lineinfo);
+	strcpy(new->filename, filename);
 	listaddItem(errfactory->warnings, new);	
 	return new;
 }
@@ -62,6 +62,18 @@ destroyErrmsg(Errmsg *msg)
 	free(*msg);
 	*msg = NULL;
 }
+
+void fgetline(char *str, FILE *fp)
+{
+	int i = 0;
+	char c;
+
+	while ((c = fgetc(fp)) != '\n')
+		str[i++] = c;
+	str[i] = '\0';
+}
+	
+
 /**
  * Dumps an error message
  */
@@ -69,18 +81,24 @@ void
 dumpErrmsg(Errmsg error)
 {
 	int i = 0;
+	size_t len = 0;
+	FILE *fp= fopen(error->filename, "r");
+	char c, *str = (char *)malloc(50 * sizeof(char));
 	if ( error->isWarn )
-		printf(" \033[1;31;40mWarning\033[0m@");
+		printf("\033[1;31;40mWarning\033[0m");
 	else
-		printf(" \033[1;31;40mError\033[0m@");
-	printf("(%d, %d): %s\n", error->line, error->column, error->msg);
-	printf("%s\n", error->lineinfo);
+		printf("\033[1;31;40mError\033[0m");
+	printf(" in file \033[1;33;40m%s\033[0m @(%d, %d): %s\n", error->filename, error->line, error->column, error->msg);
+	for (i = 0, fgetline(str, fp); i < error->line - 1; i++, fgetline(str, fp));	
+	printf("%s\n", str);
+	
 	for (i = 0; i < error->column - 1; i++)
-		if (error->lineinfo[i] == '\t')
+		if (str[i] == '\t')
 			printf("\t");
 		else 
 			printf(" ");
-	printf("^\n");
+	printf("\033[1;34;40m^\033[0m\n");
+	free(str);
 }
 
 ErrFactory

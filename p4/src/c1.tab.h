@@ -1,8 +1,8 @@
 /* A Bison parser, made by GNU Bison 3.0.2.  */
 
-/* Bison interface for Yacc-like parsers in C
+/* Skeleton interface for Bison GLR parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 2002-2013 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -77,50 +77,18 @@ extern int yydebug;
     VOID = 287
   };
 #endif
-/* Tokens.  */
-#define NUMBER 258
-#define ID 259
-#define PLUS 260
-#define MINUS 261
-#define MULT 262
-#define DIV 263
-#define MOD 264
-#define EQ 265
-#define ISEQ 266
-#define GT 267
-#define LT 268
-#define LE 269
-#define NE 270
-#define GE 271
-#define ODD 272
-#define EOL 273
-#define LPAR 274
-#define RPAR 275
-#define LBRACE 276
-#define RBRACE 277
-#define LBRACKET 278
-#define RBRACKET 279
-#define INT 280
-#define SEMICOLON 281
-#define COMMA 282
-#define CONST 283
-#define WHILE 284
-#define IF 285
-#define ELSE 286
-#define VOID 287
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 15 "config/c1.y" /* yacc.c:1909  */
+#line 14 "config/c1.y" /* glr.c:2555  */
 
 	char *name;
 	int  ival;
-	Loc location;
 
-#line 124 "src/c1.tab.h" /* yacc.c:1909  */
+#line 92 "src/c1.tab.h" /* glr.c:2555  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -143,6 +111,6 @@ struct YYLTYPE
 
 extern YYSTYPE yylval;
 extern YYLTYPE yylloc;
-int yyparse (void);
+int yyparse (char *filename);
 
 #endif /* !YY_YY_SRC_C1_TAB_H_INCLUDED  */

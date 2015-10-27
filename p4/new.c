@@ -3,16 +3,11 @@
 
 int main()
 {
-	char str[100];
-	memset(str, 0, 100);
-	strcat(str, "b");
-	puts(str);
-	strcat(str, "a"
-
-
-
-
-;
+	int i = 0;
+	size_t len = 0;
+	FILE *fp = fopen("Makefile", "r");
+	char c, *str;
+getline(&str, &len, fp);
 	puts(str);
 	return 1;
 }

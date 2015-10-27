@@ -1,25 +1,24 @@
 %{
 #include <stdio.h>
 #include <math.h>
-//#define debug(a) printf("%s", a)
 #include <common.h>
-//Table symtab;
-ASTTree ast;	
+#include <unistd.h>
+//ASTTree ast;	
 int num;
 char *ident;
 ErrFactory errfactory;
-extern int left_paren;
-extern char line[100];
+extern long int pos;
+extern int yylineno;
 %}
 
 %union {
 	char *name;
 	int  ival;
-	Loc location;
 }
 %locations
 %debug
-
+%glr-parser 
+%parse-param {char *filename}
 %token NUMBER ID
 %token PLUS MINUS MULT DIV MOD EQ ISEQ GT LT LE NE GE ODD
 %token EOL 
@@ -34,8 +33,6 @@ extern char line[100];
 
 %type  <ival> PLUS MINUS MULT DIV MOD EQ NUMBER
 %type  <name> ID
-%type  <location> CompUnit Decl ConstDecl MultiConstDef ConstDef MultiExp Exp VarDecl MultiVar Var 
-%type  <location> FuncDef Block MultiBlockItem BlockItem Stmt IFStmt Matched UnMatched LVal Cond
 
 
 %%
@@ -45,7 +42,6 @@ CompUnit
 	  {
 		debug("CompUnit ::= CompUnit Decl FuncDef\n");
 	  }
-
 	| Decl FuncDef
 	  {
 		debug("CompUnit ::= Decl FuncDef\n");
@@ -73,7 +69,8 @@ ConstDecl
 	| CONST MultiConstDef SEMICOLON
 	  {
 		newWarning(errfactory, MissingVarType, 
-			@1.last_line, @1.last_column, line);
+			@2.first_line, @2.first_column, 
+			filename);
 	  }
 	
 
@@ -81,7 +78,6 @@ MultiConstDef
 	: MultiConstDef COMMA ConstDef
 	  {
 		debug("MultiConstDecl ::= MultiConstDecl , ConstDef\n");
-
 	  }
 
 	| ConstDef
@@ -121,8 +117,6 @@ VarDecl
 	  {
 		debug("VarDecl ::= int MultiVar ;\n");
 	  }
-
-
 
 MultiVar
 	: MultiVar COMMA Var
@@ -168,12 +162,17 @@ FuncDef
 	  }
 	| VOID ID LPAR Block
 	  {
+		debug("FuncDef  ::= void ID( Block\n");
 		newError(errfactory, MissingRParen,
-			@2.last_line, @2.last_column, line);
+			@3.last_line, @3.last_column, 
+			filename);
 	  }
-	| VOID error Block
+	| VOID ID RPAR Block
 	  {
-		
+		debug("FuncDef  ::= void ID) Block\n");
+		newError(errfactory, MissingLParen,
+			@2.last_line, @2.last_column, 
+			filename);
 	  }
 
 Block
@@ -213,24 +212,20 @@ Stmt
 	  {
 		debug("Stmt ::= ID() ;\n");
 	  }
-	| ID error SEMICOLON
+	| ID LPAR SEMICOLON
 	  {
-		debug ("ID()\n");
-		if (left_paren > 0)
-		{
-			newError(errfactory, MissingRParen, 
-			@2.last_line, @2.last_column, line);
-			left_paren--;
-		}		
-		else if (left_paren < 0)
-		{	
-			newError(errfactory, MissingLParen,
-			@2.first_line, @2.first_column, line);
-			left_paren++;		
-		}
-		yyerrok;  
-	}
-	  
+		debug ("Stmt ::= ID(\n");
+		newError(errfactory, MissingRParen, 
+			@3.first_line, @3.first_column,
+			filename);	
+	  }  
+	| ID RPAR SEMICOLON
+	  {
+		debug ("Stmt ::= ID)\n");
+		newError(errfactory, MissingLParen, 
+			@2.first_line, @2.first_column,
+			filename);	
+	  }  
 	| Block 
 	  {
 		debug("Stmt ::= Block\n");
@@ -249,67 +244,74 @@ Stmt
 	  }
 
 WHILEStmt
-	: WHILE LPAR Cond RPAR Stmt
+	: WHILECOND Stmt 
 	  {
-		debug("Stmt ::= while(Cond) Stmt ;\n");
+		debug("Stmt ::= WHILECOND Stmt\n");
 	  }
-	| WHILE error Stmt
+
+WHILECOND
+	: WHILE LPAR Cond RPAR %dprec 3
 	  {
-		debug ("while\n");
-		if (left_paren > 0)
-		{
-			newError(errfactory, MissingRParen, 
-			@1.last_line, @1.last_column, line);
-			left_paren--;
-		}		
-		else if (left_paren < 0)
-		{	
-			newError(errfactory, MissingLParen,
-			@1.last_line, @1.last_column, line);
-			left_paren++;		
-		}
-		yyerrok;
+		debug("WHILECOND ::= while(Cond)\n");	
+	  }
+	| WHILE LPAR Cond %dprec 2
+	  {
+		debug ("WHILECOND ::= while(cond\n");
+		newError(errfactory, MissingRParen, 
+			@3.last_line, @3.last_column, 
+			filename);
+	  }
+	| WHILE Cond RPAR %dprec 2
+	  {
+		debug ("WHILECOND ::= while Cond)\n");
+		newError(errfactory, MissingLParen, 
+			@1.last_line, @1.last_column,
+			filename);
 	  }
 
 IFStmt
-	: UnMatched
+	: UnMatched %dprec 2
 	  {
 		debug("IFStmt ::= UnMatched\n");
 	  }
-	| Matched
+	| Matched %dprec 3
 	  {
 		debug("IFStmt ::= Matched\n");
 	  }
-	| IF error Stmt
-	  {
-		debug("error\n");
-		if (left_paren > 0)
-		{
-			newError(errfactory, MissingRParen, 
-			@2.last_line, @2.last_column, line);
-			left_paren--;
-		}		
-		else if (left_paren < 0)
-		{	
-			newError(errfactory, MissingLParen,
-			@2.last_line, @2.last_column, line);
-			left_paren++;		
-		}
-		yyerrok;
-	  }
 
 Matched
-	: IF LPAR Cond RPAR Stmt ELSE Stmt
+	: IFCOND Stmt ELSE Stmt %dprec 2
 	  {
-		debug("Matched ::= IF Cond Stmt ELSE Stmt\n");
+		debug("Matched ::= IFCOND Stmt ELSE Stmt\n");
 	  }
+
 
 UnMatched
-	: IF LPAR Cond RPAR Stmt
+	: IFCOND Stmt %dprec 2
 	  {
-		debug("UnMatched ::= IF Cond Stmt\n");	
+		debug("UnMatched ::= IFCOND Cond Stmt\n");	
 	  }
+	
 
+IFCOND
+	: IF LPAR Cond RPAR %dprec 2
+	  {
+		debug("IFCOND ::= IF (Cond)\n");
+	  }
+	| IF LPAR Cond %dprec 1
+	  {
+		debug("IFCOND ::= IF (Cond\n");
+		newError(errfactory, MissingRParen, 
+			@3.last_line, @3.last_column, 
+			filename);	
+	  }
+	| IF Cond RPAR %dprec 1
+	  {
+		debug("IFCOND ::= IF Cond)\n");
+		newError(errfactory, MissingLParen, 
+			@2.first_line, @2.first_column, 
+			filename);	
+	  }
 
 LVal
 	: ID
@@ -322,33 +324,31 @@ LVal
 	  }
 
 Cond
-	: ODD Exp
+	: ODD Exp %dprec 2
 	  {
-		debug("Cond ::= ! exp\n");
-		//$$ = newCondExp($1, $2, NULL);
-		//setLoc($$, (Loc)&(@$));	  	
+		debug("Cond ::= ! exp \n"); 	
 	  } 
-	| Exp LT Exp
+	| Exp LT Exp %dprec 2
 	  {
 		debug("Cond ::= exp < exp\n");
 	  }
-	| Exp ISEQ Exp
+	| Exp ISEQ Exp %dprec 2
 	  {
 		debug("Cond ::= exp == exp\n");
 	  }
-	| Exp LE Exp
+	| Exp LE Exp %dprec 2
 	  {
 		debug("Cond ::= exp <= exp\n");
 	  }
-	| Exp GT Exp
+	| Exp GT Exp %dprec 2
 	  {
 		debug("Cond ::= exp > exp\n");
 	  }
-	| Exp GE Exp
+	| Exp GE Exp %dprec 2
 	  {
 		debug("Cond ::= exp >= exp\n");
 	  }	
-	| Exp NE Exp
+	| Exp NE Exp %dprec 2
 	  {
 		debug("Cond ::= exp != exp\n");
 	  }
@@ -356,89 +356,71 @@ Cond
 
 
 Exp
-	: Exp PLUS Exp
+	: Exp PLUS Exp %dprec 4
 	  {
 		debug("exp ::= exp PLUS exp\n");
 	  }
-	| Exp MINUS Exp
+	| Exp MINUS Exp %dprec 4
 	  {
 		debug("exp ::= exp MINUS exp\n");
 	  }
-	| Exp MULT Exp 
+	| Exp MULT Exp %dprec 4
 	  {
 		debug("exp ::= exp MULT exp\n");
 	  }
-	| Exp DIV Exp 
+	| Exp DIV Exp %dprec 4
 	  {
 		debug("exp ::= exp DIV exp\n");
 	  }
-	| Exp MOD Exp
+	| Exp MOD Exp %dprec 4
 	  {
 		debug("exp ::= exp MOD exp\n");
-	    //$$ = newInfixExp($2, $1, $3); 
-	    //setLoc($$, (Loc)&(@$));
-	  }
-	| MINUS Exp %prec MINUS
+	   }
+	| MINUS Exp %prec MINUS %dprec 4
 	  {
 	  	debug("exp ::= MINUS exp\n");
-	    //$$ = newPrefixExp($1, $2); 
-	   // setLoc($$, (Loc)&(@$));
 	  }
-	| PLUS Exp %prec PLUS
+	| PLUS Exp %prec PLUS %dprec 4
 	  {
 		debug("exp ::= PLUS exp\n");
-	    //$$ = newPrefixExp($1, $2); 
-	    //setLoc($$, (Loc)&(@$));
 	  }
-	| LPAR Exp RPAR
+	| LPAR Exp RPAR %dprec 11
 	  {
-		debug("exp ::= LPAR exp RPAR\n");
-	    //$$ = newParenExp($2);
-	   // setLoc($$, (Loc)&(@$));
+		debug("exp ::= ( exp )\n");
 	  }
-	| LVal
+	| LVal 
 	  {
-		debug("Exp ::= LVal\n");
+		debug("exp ::= LVal\n");
 	  }
 
 	| NUMBER
 	  {
-		debug("Exp ::= NUMBER\n");
+		debug("exp ::= NUMBER\n");
 	  }
-	| LPAR error 
+	| LPAR Exp %dprec 10
 	  {
-		debug("(err\n");
-		if (left_paren > 0)
-		{
-			newError(errfactory, MissingRParen, 
-			@2.last_line, @2.last_column, line);
-			left_paren--;
-		}		
-		else if (left_paren < 0)
-		{	
-			newError(errfactory, MissingLParen,
-			@2.last_line, @2.last_column, line);
-			left_paren++;		
-		}
-		yyerrok;
+		debug("exp ::= ( exp \n");
+		newError(errfactory, MissingRParen, 
+			@2.last_line, @2.last_column + 1, 
+			filename);
+						
 	  }
-	| error RPAR
+	| Exp RPAR %dprec 8
 	  {
-		debug("err)\n");
-		if (left_paren > 0)
-		{
-			newError(errfactory, MissingRParen, 
-			@1.last_line, @1.last_column, line);
-			left_paren--;
-		}		
-		else if (left_paren < 0)
-		{	
-			newError(errfactory, MissingLParen,
-			@1.first_line, @1.first_column, line);
-			left_paren++;		
-		}
-		yyerrok;
+		debug("exp ::= exp )\n");
+		newError(errfactory, MissingLParen, 
+			@1.first_line, @1.first_column,
+			 filename);
 	  }
+	| Exp Exp %dprec 1
+	  {
+		debug("exp ::= exp exp\n");
+		newError(errfactory, MissingOp,
+			@2.first_line, @2.first_column, 
+			filename);	
+	  }
+
+
 %%
 
 void yyerror(char *message)
@@ -446,23 +428,46 @@ void yyerror(char *message)
 	printf("%s\n",message);
 }
 
-
+void usage() // this prepare for p5
+{
+	printf("Usage: ./c1 <filelist> [-hv]\n\
+		\t-h: Optional help flag that prints usage info\n\
+		<filelist>: Name of files need to be analysed.\n\
+		\t-v: Optional verbose flag that display the analyse info.\n");		
+}	
 
 
 int main(int argc, char *argv[])
 {
-
-	//symtab = newTable();
-	//ast = newAST();
-	printf("Parsing ...\n");
+	extern FILE *yyin;
+	int i = 1;
+	
+	/* // this prepare for p5
+	extern char *optarg;	
+	while (-1 != (opt = getopt(argc, argv, ":hv")))
+	{
+		switch(opt)
+		{
+			case 'h': usage(); break;
+			case 'v': break;
+			default: filename = optarg; break;
+		}
+	}
+	*/
 	errfactory = newErrFactory();
-	yyparse();
+	printf("Parsing ...\n");
+	if (argc > 1)
+
+		while (i < argc)
+		{	
+			yyin = fopen(argv[i], "r");
+			yyparse(argv[i]);
+			yylineno = 1;
+			fclose(yyin);
+			i++;
+		}
 	dumpErrors(errfactory);
 	dumpWarnings(errfactory);	
-	//destroyTable(&symtab);
-	//printf("\n\nFinished destroying symbolic table.\n");
+
 	return(0);
 }
-
-
-
