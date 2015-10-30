@@ -7,8 +7,8 @@
 int num;
 char *ident;
 ErrFactory errfactory;
-extern long int pos;
 extern int yylineno;
+extern int yycolumn;
 %}
 
 %union {
@@ -17,19 +17,31 @@ extern int yylineno;
 }
 %locations
 %debug
-%glr-parser 
+//%glr-parser
 %parse-param {char *filename}
+
 %token NUMBER ID
-%token PLUS MINUS MULT DIV MOD EQ ISEQ GT LT LE NE GE ODD
+%token PLUS MINUS MULT DIV MOD EQ ISEQ GT LT LE NE GE UMINUS
 %token EOL 
 %token LPAR RPAR LBRACE RBRACE LBRACKET RBRACKET 
 %token INT SEMICOLON COMMA CONST WHILE IF ELSE VOID
+%token A F// declare precedence of the grammar rule
 
 
 
+%left A
+%left nonelse
+%left ELSE
+%right LPAR 
+%left RPAR
+%left  ISEQ GT LT LE NE GE
+%nonassoc NUMBER ID
+%left EQ 
 %left  MINUS PLUS
 %left  MULT DIV
-%left  MOD
+%left  MOD 
+%left F
+%left UMINUS
 
 %type  <ival> PLUS MINUS MULT DIV MOD EQ NUMBER
 %type  <name> ID
@@ -38,11 +50,15 @@ extern int yylineno;
 %%
 
 CompUnit
-	: CompUnit Decl FuncDef
+	: CompUnit Decl
 	  {
-		debug("CompUnit ::= CompUnit Decl FuncDef\n");
+		debug("CompUnit ::= CompUnit Decl\n");
 	  }
-	| Decl FuncDef
+	| CompUnit FuncDef
+	  {
+		debug("CompUnit ::= CompUnit FuncDef\n");
+	  }
+	| Decl
 	  {
 		debug("CompUnit ::= Decl FuncDef\n");
 	  }
@@ -68,6 +84,7 @@ ConstDecl
 	  }
 	| CONST MultiConstDef SEMICOLON
 	  {
+		debug("ConstDecl ::= const MultiConstDef ;\n");
 		newWarning(errfactory, MissingVarType, 
 			@2.first_line, @2.first_column, 
 			filename);
@@ -91,16 +108,14 @@ ConstDef
 	  {
 		debug("ConstDef ::= ID EQ Exp\n");
 	  }
-	| ID LBRACKET Exp RBRACKET EQ LBRACE MultiExp RBRACE 
+	| LVal EQ LBRACE MultiExp RBRACE 
 	  {
-		debug("ConstDef ::= ID[Exp] EQ {MultiExp}\n");
+		debug("ConstDef ::= LVal EQ {MultiExp}\n");
 	  }
-	| ID LBRACKET RBRACKET EQ LBRACE MultiExp RBRACE 
+	|ID LBRACKET RBRACKET EQ LBRACE MultiExp RBRACE 
 	  {
 		debug("ConstDef ::= ID[] EQ {MultiExp}\n");
 	  }
-
-
 
 MultiExp
 	: MultiExp COMMA Exp
@@ -128,6 +143,7 @@ MultiVar
 		debug("MultiVar ::= Var\n");
 	  }
 
+
 Var
 	: ID
 	  {
@@ -143,15 +159,15 @@ Var
 	  }
 	| ID EQ Exp
 	  {
-		debug("Stmt ::= LVal EQ Exp\n");
+		debug("Var ::= ID EQ Exp\n");
 	  }
 	| ID LBRACKET Exp RBRACKET EQ LBRACE MultiExp RBRACE
 	  {
-		debug("Stmt ::= LVal[exp] EQ { MultiExp }\n");
+		debug("Var ::= ID[exp] EQ { MultiExp }\n");
 	  }
 	| ID LBRACKET RBRACKET EQ LBRACE MultiExp RBRACE
 	  {
-		debug("Stmt ::= LVal[] EQ { MultiExp }\n");
+		debug("Var ::= ID[] EQ { MultiExp }\n");
 	  }
 
 
@@ -180,7 +196,10 @@ Block
 	  {
 		debug("Block ::= { MultiBlockItem }\n");
 	  }
-
+	| LBRACE RBRACE
+	  {
+		debug("Block ::= {}\n");
+	  }
 
 MultiBlockItem
 	: MultiBlockItem BlockItem
@@ -250,18 +269,18 @@ WHILEStmt
 	  }
 
 WHILECOND
-	: WHILE LPAR Cond RPAR %dprec 3
+	: WHILE LPAR Cond RPAR
 	  {
 		debug("WHILECOND ::= while(Cond)\n");	
 	  }
-	| WHILE LPAR Cond %dprec 2
+	| WHILE LPAR Cond 
 	  {
 		debug ("WHILECOND ::= while(cond\n");
 		newError(errfactory, MissingRParen, 
 			@3.last_line, @3.last_column, 
 			filename);
 	  }
-	| WHILE Cond RPAR %dprec 2
+	| WHILE Cond RPAR
 	  {
 		debug ("WHILECOND ::= while Cond)\n");
 		newError(errfactory, MissingLParen, 
@@ -270,42 +289,30 @@ WHILECOND
 	  }
 
 IFStmt
-	: UnMatched %dprec 2
+	: 
+	 IFCOND Stmt ELSE Stmt
 	  {
-		debug("IFStmt ::= UnMatched\n");
+		debug("IFStmt ::= IFCOND Stmt ELSE Stmt\n");
 	  }
-	| Matched %dprec 3
+	| IFCOND Stmt %prec nonelse
 	  {
-		debug("IFStmt ::= Matched\n");
-	  }
-
-Matched
-	: IFCOND Stmt ELSE Stmt %dprec 2
-	  {
-		debug("Matched ::= IFCOND Stmt ELSE Stmt\n");
-	  }
-
-
-UnMatched
-	: IFCOND Stmt %dprec 2
-	  {
-		debug("UnMatched ::= IFCOND Cond Stmt\n");	
+		debug("IFStmt ::= IFCOND Cond Stmt\n");	
 	  }
 	
 
 IFCOND
-	: IF LPAR Cond RPAR %dprec 2
+	: IF LPAR Cond RPAR
 	  {
 		debug("IFCOND ::= IF (Cond)\n");
 	  }
-	| IF LPAR Cond %dprec 1
+	| IF LPAR Cond
 	  {
 		debug("IFCOND ::= IF (Cond\n");
 		newError(errfactory, MissingRParen, 
 			@3.last_line, @3.last_column, 
 			filename);	
 	  }
-	| IF Cond RPAR %dprec 1
+	| IF Cond RPAR
 	  {
 		debug("IFCOND ::= IF Cond)\n");
 		newError(errfactory, MissingLParen, 
@@ -322,33 +329,28 @@ LVal
 	  {
 	  	debug("LVal ::= ID[Exp]\n");
 	  }
-
 Cond
-	: ODD Exp %dprec 2
-	  {
-		debug("Cond ::= ! exp \n"); 	
-	  } 
-	| Exp LT Exp %dprec 2
+	:  Exp LT Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp < exp\n");
 	  }
-	| Exp ISEQ Exp %dprec 2
+	| Exp ISEQ Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp == exp\n");
 	  }
-	| Exp LE Exp %dprec 2
+	| Exp LE Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp <= exp\n");
 	  }
-	| Exp GT Exp %dprec 2
+	| Exp GT Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp > exp\n");
 	  }
-	| Exp GE Exp %dprec 2
+	| Exp GE Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp >= exp\n");
 	  }	
-	| Exp NE Exp %dprec 2
+	| Exp NE Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp != exp\n");
 	  }
@@ -356,76 +358,74 @@ Cond
 
 
 Exp
-	: Exp PLUS Exp %dprec 4
+	: Exp PLUS Exp  
 	  {
 		debug("exp ::= exp PLUS exp\n");
 	  }
-	| Exp MINUS Exp %dprec 4
+	| Exp MINUS Exp 
 	  {
 		debug("exp ::= exp MINUS exp\n");
 	  }
-	| Exp MULT Exp %dprec 4
+	| Exp MULT Exp  
 	  {
 		debug("exp ::= exp MULT exp\n");
 	  }
-	| Exp DIV Exp %dprec 4
+	| Exp DIV Exp 
 	  {
 		debug("exp ::= exp DIV exp\n");
 	  }
-	| Exp MOD Exp %dprec 4
+	| Exp MOD Exp  
 	  {
 		debug("exp ::= exp MOD exp\n");
 	   }
-	| MINUS Exp %prec MINUS %dprec 4
+	| Exp Exp %prec A 
 	  {
+		debug("exp ::= exp exp\n");
+		newError(errfactory, MissingOp,
+			@2.first_line, @2.first_column -1, 
+			filename);	
+	  }
+	 | PLUS Exp %prec PLUS
+ 	  {
+	  	debug("exp ::= PLUS exp\n");
+	  }
+
+	| MINUS Exp %prec MINUS
+ 	  {
 	  	debug("exp ::= MINUS exp\n");
 	  }
-	| PLUS Exp %prec PLUS %dprec 4
+	| NUMBER 
 	  {
-		debug("exp ::= PLUS exp\n");
-	  }
-	| LPAR Exp RPAR %dprec 11
-	  {
-		debug("exp ::= ( exp )\n");
-	  }
-	| LVal 
+		debug("exp ::= NUMBER\n");
+	  }	
+	| LVal
 	  {
 		debug("exp ::= LVal\n");
 	  }
-
-	| NUMBER
+	| LPAR Exp RPAR %prec UMINUS
 	  {
-		debug("exp ::= NUMBER\n");
+		debug("exp ::= ( exp )\n");
 	  }
-	| LPAR Exp %dprec 10
+	| LPAR Exp %prec LPAR
 	  {
 		debug("exp ::= ( exp \n");
 		newError(errfactory, MissingRParen, 
 			@2.last_line, @2.last_column + 1, 
-			filename);
-						
+			filename);					
 	  }
-	| Exp RPAR %dprec 8
+	| Exp RPAR %prec UMINUS
 	  {
 		debug("exp ::= exp )\n");
 		newError(errfactory, MissingLParen, 
 			@1.first_line, @1.first_column,
 			 filename);
 	  }
-	| Exp Exp %dprec 1
-	  {
-		debug("exp ::= exp exp\n");
-		newError(errfactory, MissingOp,
-			@2.first_line, @2.first_column, 
-			filename);	
-	  }
-
-
+	
 %%
 
-void yyerror(char *message)
+void yyerror(char *filename, char *message)
 {
-	printf("%s\n",message);
+	printf("\033[1;31;40m%s\033[0m in %s\n",message, filename);
 }
 
 void usage() // this prepare for p5
@@ -441,6 +441,7 @@ int main(int argc, char *argv[])
 {
 	extern FILE *yyin;
 	int i = 1;
+	int temp;
 	
 	/* // this prepare for p5
 	extern char *optarg;	
@@ -456,16 +457,32 @@ int main(int argc, char *argv[])
 	*/
 	errfactory = newErrFactory();
 	printf("Parsing ...\n");
-	if (argc > 1)
-
-		while (i < argc)
-		{	
-			yyin = fopen(argv[i], "r");
-			yyparse(argv[i]);
-			yylineno = 1;
-			fclose(yyin);
-			i++;
+	while (i < argc)
+	{	
+		yyin = fopen(argv[i], "r");
+		printf("Parsing file \"\033[1;31;40m%s\033[0m\"\n", argv[i]);
+		temp = yyparse(argv[i]);
+		
+		if(temp == 1)
+		{
+			yylineno = 0;
+			printf("parsing failed\n");		
+		}		
+		else if (temp == 2)
+		{
+			printf("using up memory\n");
+			fclose(yyin);	
+			exit(-1);	
 		}
+		else 
+		{
+			yylineno = 1;
+			printf("parsing file \"\033[1;31;40m%s\033[0m\" succcessful\n", argv[i]);				
+		}
+		yycolumn = 1;
+		fclose(yyin);
+		i++;
+	}
 	dumpErrors(errfactory);
 	dumpWarnings(errfactory);	
 

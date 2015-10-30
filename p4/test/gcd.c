@@ -1,28 +1,33 @@
-const a = 1;
+
 void main()
 {
     int i, j, temp, a, b;
-	//a;
-    a(;
+    //printf("input two integers:");
+    //scanf("%d%d", &a, &b);  
+    a = 2 *(1 +3);
+	a = 2+(1*3);
+	a = 2%(1*3);
+	a = 3*(3 *4);	
 
-
-		if (a > 2
-			b = 3;
-		else a = 1;
-    while (i%j != 0
+    if (a > b)
     {
-		temp = i;
-		i = j;
-		j = temp%i;
+	i = a; 
+    	j = b;
     }
-	int c;
-	b = (((1+2); 
-	a = (1 1)));
-	a = a b + c;
+    else
+    {
+   	i = b;
+	j = a;
+    }
 
-    a = 2+3*2;
-
-// prinf("the gcd of %d and %d is %d \n", i, j, temp);
+    while (i%j != 1-1)
+    {
+	temp = i;
+	i = j;
+	j = temp%i;
+    }
+    
+    //printf("The gcd of %d and %d is %d\n", a, b, j);
 }
 
 

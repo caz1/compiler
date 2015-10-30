@@ -1,6 +1,7 @@
 /*
  * Functions of Error Messages and their Container
  * Author: Yu Zhang (yuzhang@ustc.edu.cn)
+ * Modified by CAZ@USTC
  */
 #include <string.h>
 #include <stdlib.h>
@@ -63,13 +64,19 @@ destroyErrmsg(Errmsg *msg)
 	*msg = NULL;
 }
 
+/**
+ * Get one line in fp
+ */
 void fgetline(char *str, FILE *fp)
 {
 	int i = 0;
-	char c;
+	char c = fgetc(fp);
 
-	while ((c = fgetc(fp)) != '\n')
+	while (c != EOF && c != '\n')
+	{
 		str[i++] = c;
+		c = fgetc(fp);
+	}
 	str[i] = '\0';
 }
 	
@@ -83,7 +90,7 @@ dumpErrmsg(Errmsg error)
 	int i = 0;
 	size_t len = 0;
 	FILE *fp= fopen(error->filename, "r");
-	char c, *str = (char *)malloc(50 * sizeof(char));
+	char c, *str = (char *)malloc(500 * sizeof(char));
 	if ( error->isWarn )
 		printf("\033[1;31;40mWarning\033[0m");
 	else

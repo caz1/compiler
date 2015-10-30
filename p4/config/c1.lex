@@ -1,5 +1,4 @@
 %{
-//#include"token.h"
 #include <common.h>
 #include "c1.tab.h"
 
@@ -35,7 +34,6 @@ void	{ return(VOID);}
 {ID}	{ident=yytext; return(ID);}
 
 "\n"    {yycolumn = 1;}
-'!'	{return(ODD);}
 
 "<"	{return(LT);}
 "=="	{return(ISEQ);}

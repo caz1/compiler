@@ -1,0 +1,44 @@
+******************
+Test the programs:
+******************
+
+Before running the programs, compile the source file:
+    linux> make
+Running the programs:
+    linux> make run
+
+It will run the executable files with test case written in advance automatically and write the output to stdout.
+Or you can:
+    linux> make tolog
+It will run the executable files with test case written in advance automatically and write the output to log.
+But it is impossible to show the color in log.
+	
+******************************************************
+Source files used in this project(*means I've edited):
+******************************************************
+
+c1.lex*		lex file to generate lexer for c1 
+c1.y*		yacc file defines the grammar rules and other things for c1 
+ast.c		source file to generate ast(not used in this project) 
+error.c*	source file to generate error information and display them 
+list.c		an implementation of linklist 
+symtab.c 	source file to generate symbol table(not used in this project)
+*.h		head files copyed from bison-example 
+common.h* 
+
+
+******
+Files:
+******
+
+log		output of the parser 
+Makefile	Build the executable files 	
+README		This file
+src/ 		Source files for this project
+bin/		executable file for this project
+test/ 		Test files to test correctness of the parser
+doc/		Doc for this project
+config/		lex and yacc file
+include/	head files for this project
+ 
+
