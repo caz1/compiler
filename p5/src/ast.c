@@ -30,22 +30,35 @@ newNumber(int value)
 }
 
 ASTNode
-newName(Table ptab, char *name, int type, void *content)
+newName(Table ptab, const char *name, ASTNode exp)
 {
 	ASTNode new;
 	NEW0(new);
 	new->kind = KName;
-	if (type == 0)
-		if (content == NULL)
-			new->sym = newINTEntry(ptab, name, 0, 0);
-		else new->sym = newINTEntry(ptab, name, 1, calculateExp((ASTNode)content)); 
-	else if (type == 1)
-		if (((List)content)->size == 1)
-			new->sym = newArrayEntry(ptab, name, 0, NULL, 0); // TODO how to compute the val
-		else new->sym = newArrayEntry(ptab, name, 1, NULL, (((List)content)->size) - 1);
-	else if (type == 2)
-		new->sym = newFuncEntry(ptab, name);
+	if (exp == NULL)
+	    new->sym = newINTEntry(ptab, name, 0, NULL);
+	else new->sym = newINTEntry(ptab, name, 1, exp); 
 	return new;
+}
+
+ASTNode 
+newArray(Table ptab, const char *name, int sizeInitial, List exp)
+{
+    ASTNode new;
+    NEW0(new);
+    new->kind = KName; 
+    new->sym = newArrayEntry(ptab, name, sizeInitial, exp);
+    return new;
+}
+
+ASTNode 
+newFunc(Table ptab, const char *name)
+{
+    ASTNode new;
+    NEW0(new);
+    new->kind = KName;
+    new->sym = newFuncEntry(ptab, name);
+    return new;
 }
 
 ASTNode

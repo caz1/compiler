@@ -21,13 +21,13 @@ typedef struct symbol {
 	char	*name;	// name of the symbol
 	bool	isInitial;	// whether it is initialized	
 	int	val;	// value of the symbol
+	struct astnode *exp;
 } *Symbol;
 
 typedef struct {
 	char *name;
-	bool isInitial;
-	int size;
-	int *val;
+	bool isInitial, sizeInitial;
+	List exp; // first is size
 } *arraySymbol;
 
 typedef struct {
@@ -57,8 +57,8 @@ typedef struct table {
 
 // Function declarations corresponding to symbolic table
 Table 	newTable();
-Entry	newINTEntry(Table tab, const char *name, int isInitial, int val);
-Entry	newArrayEntry(Table tab, const char *name, int isInitial, int *val, int size);
+Entry	newINTEntry(Table tab, const char *name, int isInitial, struct astnode *exp);
+Entry	newArrayEntry(Table tab, const char *name, int sizeInitial, List exp);
 Entry	newFuncEntry(Table tab, const char *name);
 Entry	lookup(Table tab, const char *name, int type);
 Symbol 	getSym(Table ptab, const char *name);
@@ -247,7 +247,9 @@ typedef struct ASTtree {
 
 // functions for creating various kinds of ASTnodes
 ASTNode newNumber(int value);
-ASTNode newName(Table ptab, char *name, int type, void *content);
+ASTNode newName(Table ptab, const char *name, ASTNode exp);
+ASTNode newArray(Table ptab, const char *name, int sizeInitial, List exp);
+ASTNode newFunc(Table ptab, const char *name);
 ASTNode newPrefixExp(int op, ASTNode exp);
 ASTNode newParenExp(ASTNode exp);
 ASTNode newInfixExp(int op, ASTNode left, ASTNode right);
@@ -270,6 +272,11 @@ ASTNode newBlock();
 void	destroyBlock(Block *pblock);
 ASTTree newAST();
 void	destroyAST(ASTNode *pnode);
+
+
+
+
+
 void 	dumpAST(ASTNode node);
 Loc	setLoc(ASTNode node, Loc loc);
 

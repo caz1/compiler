@@ -527,13 +527,13 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint16 yyrline[] =
 {
        0,    60,    60,    66,    72,    78,    84,    91,    97,   104,
-     109,   120,   127,   136,   144,   149,   156,   162,   170,   177,
-     183,   192,   197,   204,   211,   217,   225,   230,   237,   246,
-     251,   258,   265,   274,   279,   287,   292,   297,   304,   311,
-     316,   321,   326,   333,   340,   345,   352,   362,   367,   375,
-     380,   387,   396,   408,   419,   424,   429,   434,   439,   444,
-     453,   458,   463,   468,   473,   478,   485,   491,   496,   501,
-     506,   511,   518
+     109,   120,   127,   136,   144,   150,   157,   163,   171,   178,
+     184,   193,   198,   205,   212,   218,   226,   231,   238,   247,
+     252,   259,   266,   275,   280,   288,   293,   298,   305,   312,
+     317,   322,   327,   334,   341,   346,   353,   363,   368,   376,
+     381,   388,   397,   409,   420,   425,   430,   435,   440,   445,
+     454,   459,   464,   469,   474,   479,   486,   492,   497,   502,
+     507,   512,   519
 };
 #endif
 
@@ -1631,7 +1631,7 @@ yyreduce:
 		debug("ConstDef ::= ID EQ Exp\n");
 		List new = newList();
 		addLast(new, (yyvsp[0].node));
-		(yyval.constdef) = newConstDef(newName(symtab, (yyvsp[-2].name), 0, (yyvsp[0].node)), new);
+		(yyval.constdef) = newConstDef(newName(symtab, (yyvsp[-2].name), (yyvsp[0].node)), new);
 		
 	  }
 #line 1638 "src/c1.tab.c" /* yacc.c:1646  */
@@ -1641,375 +1641,376 @@ yyreduce:
 #line 145 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("ConstDef ::= ID[exp] EQ {MultiExp}\n");
-		(yyval.constdef) = newConstDef(newName(symtab, (yyvsp[-7].name), 1, (yyvsp[-1].list)), (yyvsp[-1].list));
+		addLast((yyvsp[-1].list), (yyvsp[-5].node));
+		(yyval.constdef) = newConstDef(newArray(symtab, (yyvsp[-7].name), 1, (yyvsp[-1].list)), (yyvsp[-1].list));
 	  }
-#line 1647 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1648 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 150 "config/c1.y" /* yacc.c:1646  */
+#line 151 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("ConstDef ::= ID[] EQ {MultiExp}\n");
-		(yyval.constdef) = newConstDef(newName(symtab, (yyvsp[-6].name), 1, (yyvsp[-1].list)), (yyvsp[-1].list));
+		(yyval.constdef) = newConstDef(newArray(symtab, (yyvsp[-6].name), 0, (yyvsp[-1].list)), (yyvsp[-1].list));
 	  }
-#line 1656 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1657 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 157 "config/c1.y" /* yacc.c:1646  */
+#line 158 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("MultiExp ::= MultiExp , Exp\n");
 		addLast((yyvsp[-2].list), (yyvsp[0].node));
 		(yyval.list) = (yyvsp[-2].list);
 	  }
-#line 1666 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1667 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 163 "config/c1.y" /* yacc.c:1646  */
+#line 164 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("MultiExp ::= Exp\n");
 		(yyval.list) = newList();
 		addLast((yyval.list), (yyvsp[0].node));
 	  }
-#line 1676 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1677 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 171 "config/c1.y" /* yacc.c:1646  */
+#line 172 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("VarDecl ::= int MultiVar ;\n");
 		(yyval.node) = newVarDecl((yyvsp[-1].list));
 	  }
-#line 1685 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1686 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 178 "config/c1.y" /* yacc.c:1646  */
+#line 179 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("MultiVar ::= MultiVar , Var\n");
 		addLast((yyvsp[-2].list), (yyvsp[0].vardef));
 		(yyval.list) = (yyvsp[-2].list);
 	  }
-#line 1695 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1696 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 184 "config/c1.y" /* yacc.c:1646  */
+#line 185 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("MultiVar ::= Var\n");
 		(yyval.list) = newList();
 		addLast((yyval.list), (yyvsp[0].vardef));
 	  }
-#line 1705 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1706 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 193 "config/c1.y" /* yacc.c:1646  */
+#line 194 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Var ::= ID\n");
-		(yyval.vardef) = newVarDef(newName(symtab, (yyvsp[0].name), 0, NULL), newList());
+		(yyval.vardef) = newVarDef(newName(symtab, (yyvsp[0].name), NULL), newList());
 	  }
-#line 1714 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1715 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 198 "config/c1.y" /* yacc.c:1646  */
+#line 199 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Var ::= ID[Exp]\n");
 		List tmp = newList();
 		addLast(tmp, (yyvsp[-1].node));
-		(yyval.vardef) = newVarDef(newName(symtab, (yyvsp[-3].name), 1, NULL), tmp);
+		(yyval.vardef) = newVarDef(newArray(symtab, (yyvsp[-3].name), 1, tmp), NULL);
 	  }
-#line 1725 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1726 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 205 "config/c1.y" /* yacc.c:1646  */
+#line 206 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Var ::= ID EQ Exp\n");
 		List tmp = newList();
 		addLast(tmp, (yyvsp[0].node));
-		(yyval.vardef) = newVarDef(newName(symtab, (yyvsp[-2].name), 0, tmp), tmp);
+		(yyval.vardef) = newVarDef(newName(symtab, (yyvsp[-2].name), (yyvsp[0].node)), tmp);
 	  }
-#line 1736 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1737 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 212 "config/c1.y" /* yacc.c:1646  */
+#line 213 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Var ::= ID[exp] EQ { MultiExp }\n");
 		addFirst((yyvsp[-1].list), (yyvsp[-5].node)); 
-		(yyval.vardef) = newVarDef(newName(symtab, (yyvsp[-7].name), 1, (yyvsp[-1].list)), (yyvsp[-1].list));
+		(yyval.vardef) = newVarDef(newArray(symtab, (yyvsp[-7].name), 1, (yyvsp[-1].list)), (yyvsp[-1].list));
 	  }
-#line 1746 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1747 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 218 "config/c1.y" /* yacc.c:1646  */
+#line 219 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Var ::= ID[] EQ { MultiExp }\n");
-		(yyval.vardef) = newVarDef(newName(symtab, (yyvsp[-6].name), 1, (yyvsp[-1].list)), (yyvsp[-1].list)); // 
+		(yyval.vardef) = newVarDef(newArray(symtab, (yyvsp[-6].name), 0, (yyvsp[-1].list)), (yyvsp[-1].list)); // 
 	  }
-#line 1755 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1756 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 226 "config/c1.y" /* yacc.c:1646  */
+#line 227 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("FuncDef ::= void ID() Block\n");
-		(yyval.node) = newFuncDef(newName(symtab, (yyvsp[-3].name), 2, (yyvsp[0].node)), (yyvsp[0].node));
+		(yyval.node) = newFuncDef(newFunc(symtab, (yyvsp[-3].name)), (yyvsp[0].node));
 	  }
-#line 1764 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1765 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 231 "config/c1.y" /* yacc.c:1646  */
+#line 232 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("FuncDef  ::= void ID( Block\n");
 		newError(errfactory, MissingRParen,
 			(yylsp[-1]).last_line, (yylsp[-1]).last_column, 
 			filename);
 	  }
-#line 1775 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1776 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 238 "config/c1.y" /* yacc.c:1646  */
+#line 239 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("FuncDef  ::= void ID) Block\n");
 		newError(errfactory, MissingLParen,
 			(yylsp[-2]).last_line, (yylsp[-2]).last_column, 
 			filename);
 	  }
-#line 1786 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1787 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 247 "config/c1.y" /* yacc.c:1646  */
+#line 248 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Block ::= { MultiBlockItem }\n");
 		(yyval.node) = (yyvsp[-1].node);
 	  }
-#line 1795 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1796 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 252 "config/c1.y" /* yacc.c:1646  */
+#line 253 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Block ::= {}\n");
-		(yyval.node) = NULL;
+		(yyval.node) = newBlock();
 	  }
-#line 1804 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1805 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 259 "config/c1.y" /* yacc.c:1646  */
+#line 260 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("BlockItem ::= MultiBlockItem BlockItem\n");
 		if ((yyvsp[0].node)->kind == KVarDecl || (yyvsp[0].node)->kind == KConstDecl) addLast((yyvsp[-1].node)->block->decl, (yyvsp[-1].node));
 		else addLast((yyvsp[-1].node)->block->stmts, (yyvsp[-1].node));
 		(yyval.node) = (yyvsp[-1].node);
 	  }
-#line 1815 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1816 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 266 "config/c1.y" /* yacc.c:1646  */
+#line 267 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Block ::= BlockItem\n");
 		(yyval.node) = newBlock();
 		if ((yyvsp[0].node)->kind == KVarDecl || (yyvsp[0].node)->kind == KConstDecl) addLast((yyval.node)->block->decl, (yyvsp[0].node));
 		else addLast((yyval.node)->block->stmts, (yyvsp[0].node));
 	  }
-#line 1826 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1827 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 275 "config/c1.y" /* yacc.c:1646  */
+#line 276 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("BlockItem ::= Decl \n");
 		(yyval.node) = (yyvsp[0].node);
 	  }
-#line 1835 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1836 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 280 "config/c1.y" /* yacc.c:1646  */
+#line 281 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("BlockItem ::= Stmt\n");
 		(yyval.node) = (yyvsp[0].node);
 	  }
-#line 1844 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1845 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 288 "config/c1.y" /* yacc.c:1646  */
+#line 289 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Stmt ::= LVal EQ Exp ;\n");
 		(yyval.node) = newStmt(newAssignment((yyvsp[-2].ival), (yyvsp[-3].node), (yyvsp[-1].node)), 0);
 	  }
-#line 1853 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1854 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 293 "config/c1.y" /* yacc.c:1646  */
+#line 294 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Stmt ::= ID() ;\n");
 		(yyval.node) = newStmt(newFuncall((yyvsp[-3].name)), 1);
 	  }
-#line 1862 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1863 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 298 "config/c1.y" /* yacc.c:1646  */
+#line 299 "config/c1.y" /* yacc.c:1646  */
     {
 		debug ("Stmt ::= ID(\n");
 		newError(errfactory, MissingRParen, 
 			(yylsp[0]).first_line, (yylsp[0]).first_column,
 			filename);	
 	  }
-#line 1873 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1874 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 305 "config/c1.y" /* yacc.c:1646  */
+#line 306 "config/c1.y" /* yacc.c:1646  */
     {
 		debug ("Stmt ::= ID)\n");
 		newError(errfactory, MissingLParen, 
 			(yylsp[-1]).first_line, (yylsp[-1]).first_column,
 			filename);	
 	  }
-#line 1884 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1885 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 312 "config/c1.y" /* yacc.c:1646  */
+#line 313 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Stmt ::= Block\n");
 		(yyval.node) = newStmt((yyvsp[0].node), 2);		
 	  }
-#line 1893 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1894 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 317 "config/c1.y" /* yacc.c:1646  */
+#line 318 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Stmt ::= IFStmt\n");
 		(yyval.node) = newStmt((yyvsp[0].node), 3);
 	  }
-#line 1902 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1903 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 322 "config/c1.y" /* yacc.c:1646  */
+#line 323 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Stmt ::= WHILEStmt\n");
 		(yyval.node) = newStmt((yyvsp[0].node), 4);
 	  }
-#line 1911 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1912 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 327 "config/c1.y" /* yacc.c:1646  */
+#line 328 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Stmt ::= ;\n");
 		(yyval.node) = newStmt(NULL, 5);
 	  }
-#line 1920 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1921 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 334 "config/c1.y" /* yacc.c:1646  */
+#line 335 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Stmt ::= WHILECOND Stmt\n");
 		(yyval.node) = newWhileStmt((yyvsp[-1].node), (yyvsp[0].node));
 	  }
-#line 1929 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1930 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 341 "config/c1.y" /* yacc.c:1646  */
+#line 342 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("WHILECOND ::= while(Cond)\n");
 		(yyval.node) = (yyvsp[-1].node);	
 	  }
-#line 1938 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1939 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 346 "config/c1.y" /* yacc.c:1646  */
+#line 347 "config/c1.y" /* yacc.c:1646  */
     {
 		debug ("WHILECOND ::= while(cond\n");
 		newError(errfactory, MissingRParen, 
 			(yylsp[0]).last_line, (yylsp[0]).last_column, 
 			filename);
 	  }
-#line 1949 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1950 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 353 "config/c1.y" /* yacc.c:1646  */
+#line 354 "config/c1.y" /* yacc.c:1646  */
     {
 		debug ("WHILECOND ::= while Cond)\n");
 		newError(errfactory, MissingLParen, 
 			(yylsp[-2]).last_line, (yylsp[-2]).last_column,
 			filename);
 	  }
-#line 1960 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1961 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 363 "config/c1.y" /* yacc.c:1646  */
+#line 364 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("IFStmt ::= IFCOND Stmt ELSE Stmt\n");
 		(yyval.node) = newIfStmt((yyvsp[-3].node), (yyvsp[-2].node), 1, (yyvsp[0].node));
 	  }
-#line 1969 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1970 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 368 "config/c1.y" /* yacc.c:1646  */
+#line 369 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("IFStmt ::= IFCOND Cond Stmt\n");	
 		(yyval.node) = newIfStmt((yyvsp[-1].node), (yyvsp[0].node), 0, NULL);
 	  }
-#line 1978 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1979 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 376 "config/c1.y" /* yacc.c:1646  */
+#line 377 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("IFCOND ::= IF (Cond)\n");
 		(yyval.node) = (yyvsp[-1].node);
 	  }
-#line 1987 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1988 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 381 "config/c1.y" /* yacc.c:1646  */
+#line 382 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("IFCOND ::= IF (Cond\n");
 		newError(errfactory, MissingRParen, 
 			(yylsp[0]).last_line, (yylsp[0]).last_column, 
 			filename);	
 	  }
-#line 1998 "src/c1.tab.c" /* yacc.c:1646  */
+#line 1999 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 388 "config/c1.y" /* yacc.c:1646  */
+#line 389 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("IFCOND ::= IF Cond)\n");
 		newError(errfactory, MissingLParen, 
 			(yylsp[-1]).first_line, (yylsp[-1]).first_column, 
 			filename);	
 	  }
-#line 2009 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2010 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 397 "config/c1.y" /* yacc.c:1646  */
+#line 398 "config/c1.y" /* yacc.c:1646  */
     {
 	  	debug("LVal ::= ID\n");
 		if (lookupvar(symtab, (yyvsp[0].name)))
@@ -2021,11 +2022,11 @@ yyreduce:
 				(yylsp[0]).first_line, (yylsp[0]).first_column,
 				filename);
 	  }
-#line 2025 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2026 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 409 "config/c1.y" /* yacc.c:1646  */
+#line 410 "config/c1.y" /* yacc.c:1646  */
     {
 	  	debug("LVal ::= ID[Exp]\n");
 		if (lookuparray(symtab, (yyvsp[-3].name)))
@@ -2035,188 +2036,188 @@ yyreduce:
 			(yylsp[-3]).first_line, (yylsp[-3]).first_column, 
 			filename);
 	  }
-#line 2039 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2040 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 420 "config/c1.y" /* yacc.c:1646  */
+#line 421 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Cond ::= exp < exp\n");
 		(yyval.node) = newCondExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node));
 	  }
-#line 2048 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2049 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 425 "config/c1.y" /* yacc.c:1646  */
+#line 426 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Cond ::= exp == exp\n");
 		(yyval.node) = newCondExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node));
 	  }
-#line 2057 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2058 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 430 "config/c1.y" /* yacc.c:1646  */
+#line 431 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Cond ::= exp <= exp\n");
 		(yyval.node) = newCondExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node));
 	  }
-#line 2066 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2067 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 435 "config/c1.y" /* yacc.c:1646  */
+#line 436 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Cond ::= exp > exp\n");
 		(yyval.node) = newCondExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node));
 	  }
-#line 2075 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2076 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 440 "config/c1.y" /* yacc.c:1646  */
+#line 441 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Cond ::= exp >= exp\n");
 		(yyval.node) = newCondExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node));
 	  }
-#line 2084 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2085 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 445 "config/c1.y" /* yacc.c:1646  */
+#line 446 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("Cond ::= exp != exp\n");
 		(yyval.node) = newCondExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node));
 	  }
-#line 2093 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2094 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 454 "config/c1.y" /* yacc.c:1646  */
+#line 455 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= exp PLUS exp\n");
 		(yyval.node) = newInfixExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node)); 
 	  }
-#line 2102 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2103 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 459 "config/c1.y" /* yacc.c:1646  */
+#line 460 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= exp MINUS exp\n");
 		(yyval.node) = newInfixExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node)); 
 	  }
-#line 2111 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2112 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 464 "config/c1.y" /* yacc.c:1646  */
+#line 465 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= exp MULT exp\n");
 		(yyval.node) = newInfixExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node)); 
 	  }
-#line 2120 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2121 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 469 "config/c1.y" /* yacc.c:1646  */
+#line 470 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= exp DIV exp\n");
 		(yyval.node) = newInfixExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node)); 
 	  }
-#line 2129 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2130 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 474 "config/c1.y" /* yacc.c:1646  */
+#line 475 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= exp MOD exp\n");
 		(yyval.node) = newInfixExp((yyvsp[-1].ival), (yyvsp[-2].node), (yyvsp[0].node)); 
 	   }
-#line 2138 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2139 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 479 "config/c1.y" /* yacc.c:1646  */
+#line 480 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= exp exp\n");
 		newError(errfactory, MissingOp,
 			(yylsp[0]).first_line, (yylsp[0]).first_column -1, 
 			filename);	
 	  }
-#line 2149 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2150 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 486 "config/c1.y" /* yacc.c:1646  */
+#line 487 "config/c1.y" /* yacc.c:1646  */
     {
 	  	debug("exp ::= PLUS exp\n");
 	   	(yyval.node) = newPrefixExp((yyvsp[-1].ival), (yyvsp[0].node)); 	
 	  }
-#line 2158 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2159 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 492 "config/c1.y" /* yacc.c:1646  */
+#line 493 "config/c1.y" /* yacc.c:1646  */
     {
 	  	debug("exp ::= MINUS exp\n");
 	  	(yyval.node) = newPrefixExp((yyvsp[-1].ival), (yyvsp[0].node)); 
 	  }
-#line 2167 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2168 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 497 "config/c1.y" /* yacc.c:1646  */
+#line 498 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= NUMBER\n");
 		(yyval.node) = newNumber((yyvsp[0].ival));
 	  }
-#line 2176 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2177 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 502 "config/c1.y" /* yacc.c:1646  */
+#line 503 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= LVal\n");
 		(yyval.node) = (yyvsp[0].node);
 	  }
-#line 2185 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2186 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 507 "config/c1.y" /* yacc.c:1646  */
+#line 508 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= ( exp )\n");
 	    	(yyval.node) = newParenExp((yyvsp[-1].node));
 	  }
-#line 2194 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2195 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 512 "config/c1.y" /* yacc.c:1646  */
+#line 513 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= ( exp \n");
 		newError(errfactory, MissingRParen, 
 			(yylsp[0]).last_line, (yylsp[0]).last_column + 1, 
 			filename);					
 	  }
-#line 2205 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2206 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 519 "config/c1.y" /* yacc.c:1646  */
+#line 520 "config/c1.y" /* yacc.c:1646  */
     {
 		debug("exp ::= exp )\n");
 		newError(errfactory, MissingLParen, 
 			(yylsp[-1]).first_line, (yylsp[-1]).first_column,
 			 filename);
 	  }
-#line 2216 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2217 "src/c1.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2220 "src/c1.tab.c" /* yacc.c:1646  */
+#line 2221 "src/c1.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2451,7 +2452,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 526 "config/c1.y" /* yacc.c:1906  */
+#line 527 "config/c1.y" /* yacc.c:1906  */
 
 
 void yyerror(char *filename, char *message)

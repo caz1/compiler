@@ -140,8 +140,9 @@ getSym(Table ptab, const char *name)
 	NEW0(new);
 	pent->sym = new;
 	pent->kind = INt;
+	pent->sym->exp = NULL;
 	pent->sym->name = (char *)name;
-	pent->sym->val = 0; // initial with 0
+	//pent->sym->val = 0; // initial with 0
 	pent->sym->isInitial = 0;
 	pent->next = ptab->buckets[hashkey];
 	ptab->buckets[hashkey] = pent;
@@ -160,14 +161,14 @@ getaSym(Table tab, const char *name)
 	NEW0(pent);
 	arraySymbol new;
 	NEW0(new);
-	int *temp;
-	NEW0(temp);
 	pent->asym = new;
 	pent->kind = ARRAY;
 	pent->asym->name = (char *)name;
-	pent->asym->val = temp;
+	//pent->asym->val = temp;
+	pent->asym->exp = NULL;
 	pent->asym->isInitial = 0;
-	pent->asym->size = 0;
+	pent->asym->sizeInitial = 0;
+	//pent->asym->size = 0;
 	pent->next = tab->buckets[hashkey];
 	tab->buckets[hashkey] = pent;
 	return pent->asym;
@@ -225,7 +226,7 @@ setVal(Table ptab, const char *name, int val)
 }
 
 Entry 
-newINTEntry(Table tab, const char *name, int isInitial, int val)
+newINTEntry(Table tab, const char *name, int isInitial, ASTNode exp)
 {
 	Entry pent;
 	NEW0(pent);
@@ -236,14 +237,14 @@ newINTEntry(Table tab, const char *name, int isInitial, int val)
 	pent->sym = sym;
 	pent->sym->name = name;
 	pent->sym->isInitial = isInitial;
-	pent->sym->val = val;
+	pent->sym->exp = exp;
 	pent->next = tab->buckets[hashkey];
 	tab->buckets[hashkey] = pent;
 	return pent;
 }
 
 Entry 
-newArrayEntry(Table tab, const char *name, int isInitial, int *val, int size)
+newArrayEntry(Table tab, const char *name, int sizeInitial, List exp)
 {
 	Entry pent;
 	NEW0(pent);
@@ -253,9 +254,10 @@ newArrayEntry(Table tab, const char *name, int isInitial, int *val, int size)
 	NEW0(sym);
 	pent->asym = sym;
 	pent->asym->name = name;
-	pent->asym->isInitial = isInitial;
-	pent->asym->val = val;
-	pent->asym->size = size;
+	pent->asym->isInitial = ((sizeInitial && exp->size == 1) || \
+	                            (!sizeInitial && exp->size == 0)) ? 0 : 1;
+	pent->asym->sizeInitial = sizeInitial;
+	pent->asym->exp = exp;
 	pent->next = tab->buckets[hashkey];
 	tab->buckets[hashkey] = pent;
 	return pent;

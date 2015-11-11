@@ -138,18 +138,19 @@ ConstDef
 		debug("ConstDef ::= ID EQ Exp\n");
 		List new = newList();
 		addLast(new, $3);
-		$$ = newConstDef(newName(symtab, $1, 0, $3), new);
+		$$ = newConstDef(newName(symtab, $1, $3), new);
 		
 	  }
 	| ID LBRACKET Exp RBRACKET EQ LBRACE MultiExp RBRACE 
 	  {
 		debug("ConstDef ::= ID[exp] EQ {MultiExp}\n");
-		$$ = newConstDef(newName(symtab, $1, 1, $7), $7);
+		addLast($7, $3);
+		$$ = newConstDef(newArray(symtab, $1, 1, $7), $7);
 	  }
 	|ID LBRACKET RBRACKET EQ LBRACE MultiExp RBRACE 
 	  {
 		debug("ConstDef ::= ID[] EQ {MultiExp}\n");
-		$$ = newConstDef(newName(symtab, $1, 1, $6), $6);
+		$$ = newConstDef(newArray(symtab, $1, 0, $6), $6);
 	  }
 
 MultiExp
@@ -192,32 +193,32 @@ Var
 	: ID
 	  {
 		debug("Var ::= ID\n");
-		$$ = newVarDef(newName(symtab, $1, 0, NULL), newList());
+		$$ = newVarDef(newName(symtab, $1, NULL), newList());
 	  }
 	| ID LBRACKET Exp RBRACKET
 	  {
 		debug("Var ::= ID[Exp]\n");
 		List tmp = newList();
 		addLast(tmp, $3);
-		$$ = newVarDef(newName(symtab, $1, 1, NULL), tmp);
+		$$ = newVarDef(newArray(symtab, $1, 1, tmp), NULL);
 	  }
 	| ID EQ Exp//
 	  {
 		debug("Var ::= ID EQ Exp\n");
 		List tmp = newList();
 		addLast(tmp, $3);
-		$$ = newVarDef(newName(symtab, $1, 0, tmp), tmp);
+		$$ = newVarDef(newName(symtab, $1, $3), tmp);
 	  }
 	| ID LBRACKET Exp RBRACKET EQ LBRACE MultiExp RBRACE
 	  {
 		debug("Var ::= ID[exp] EQ { MultiExp }\n");
 		addFirst($7, $3); 
-		$$ = newVarDef(newName(symtab, $1, 1, $7), $7);
+		$$ = newVarDef(newArray(symtab, $1, 1, $7), $7);
 	  }
 	| ID LBRACKET RBRACKET EQ LBRACE MultiExp RBRACE
 	  {
 		debug("Var ::= ID[] EQ { MultiExp }\n");
-		$$ = newVarDef(newName(symtab, $1, 1, $6), $6); // 
+		$$ = newVarDef(newArray(symtab, $1, 0, $6), $6); // 
 	  }
 
 
@@ -225,7 +226,7 @@ FuncDef
 	: VOID ID LPAR RPAR Block
 	  {
 		debug("FuncDef ::= void ID() Block\n");
-		$$ = newFuncDef(newName(symtab, $2, 2, $5), $5);
+		$$ = newFuncDef(newFunc(symtab, $2), $5);
 	  }
 	| VOID ID LPAR Block
 	  {
@@ -251,7 +252,7 @@ Block
 	| LBRACE RBRACE
 	  {
 		debug("Block ::= {}\n");
-		$$ = NULL;
+		$$ = newBlock();
 	  }
 
 MultiBlockItem
