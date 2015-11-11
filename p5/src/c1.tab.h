@@ -120,7 +120,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 14 "config/c1.y" /* yacc.c:1909  */
+#line 16 "config/c1.y" /* yacc.c:1909  */
 
 	char *name;
 	int  ival;

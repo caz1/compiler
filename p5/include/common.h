@@ -120,15 +120,6 @@ typedef struct {
 	struct astnode	*kids[2];// kids of the AST node
 } *Exp;
 
-typedef struct {
-	int op;
-	int val;
-	struct astnode *kids[2];
-} *Cond;
-
-typedef struct {
-	struct astnode *exp;
-} *ExpStmt;
 
 typedef struct {
 	List  decl;
@@ -215,7 +206,6 @@ typedef struct astnode{
 		KInfixExp,		// infix expression
 		KAssignExp,		// assignment expression
 		KParenExp,		// parentheses expression
-		KExpStmt,		// expression statement
 		KBlock,			// block
 		KCondExp		// condition expression 
 	} kind;	// kind of the AST node
@@ -235,7 +225,7 @@ typedef struct astnode{
 					// KInfixExp,
 		asgnExp asgnexp;	// KAssignExp,
 					// KParenExp
-		ExpStmt  estmt;		// KExpStmt
+
 		Block  block;		// KBlock
 	};
 	Loc 	loc;			// locations
@@ -253,7 +243,7 @@ ASTNode newFunc(Table ptab, const char *name);
 ASTNode newPrefixExp(int op, ASTNode exp);
 ASTNode newParenExp(ASTNode exp);
 ASTNode newInfixExp(int op, ASTNode left, ASTNode right);
-ASTNode newAssignment(int op, ASTNode left, ASTNode right);
+ASTNode newAssignment(ASTNode left, ASTNode right);
 ASTNode newIfStmt(ASTNode cond, ASTNode block, int havelse, ASTNode Else);
 ASTNode newFuncall(const char *name);
 ASTNode newStmt(ASTNode exp, int type);
@@ -266,18 +256,55 @@ ConstDef newConstDef(ASTNode name, List exp);
 ASTNode newConstDecl(List def);
 ASTNode newCompUnit();
 void	destroyExp(Exp *pexp);
-ASTNode newExpStmt(ASTNode exp);
-void	destroyExpStmt(ExpStmt *pexpstmt);
 ASTNode newBlock();
-void	destroyBlock(Block *pblock);
+void	destroyBlock(ASTNode *node);
 ASTTree newAST();
 void	destroyAST(ASTNode *pnode);
+void    destroyNum(ASTNode *node);
+void    destroyName(ASTNode *node);
+void    destroyArray(ASTNode *node);
+void    destroyFunc(ASTNode *node);
+void    destroyPrefixExp(ASTNode *node);
+void    destroyParenExp(ASTNode *node);
+void    destroyInfixExp(ASTNode *node);
+void    destroyCond(ASTNode *node);
+void    destroyCompUnit(ASTNode *node);
+void    destroyConstDecl(ASTNode *decl);
+void    destroyConstDef(ConstDef *def);
+void    destroyVarDecl(ASTNode *node);
+void    destroyLVal(ASTNode *node);
+void    destroyVarDef(VarDef *node);
+void    destroyFuncDef(ASTNode *node);
+void    destroyWhileStmt(ASTNode *node);
+void    destroyStmt(ASTNode *node);
+void    destroyIFStmt(ASTNode *node);
+void    destroyFuncall(ASTNode *node);
+
+
+int dumpNum(DumpDot *dot, ASTNode node);
+int dumpVar(DumpDot *dot, ASTNode node);
+int dumpStmt(DumpDot *dot, ASTNode node);
+int dumpWhile(DumpDot *dot, ASTNode node);
+int dumpIF(DumpDot *dot, ASTNode node);
+int dumpAsgnExp(DumpDot *dot, ASTNode node);
+int dumpLVal(DumpDot *dot, ASTNode node);
+int dumpBlock(DumpDot *dot, ASTNode node);
+int dumpName(DumpDot *dot, Entry name);
+int dumpExp(DumpDot *dot, ASTNode node);
+int dumpArray(DumpDot *dot, ASTNode node);
+int dumpFunc(DumpDot *dot, ASTNode node);
+int dumpVarDef(DumpDot *dot, VarDef def);
+int dumpConstDef(DumpDot *dot, ConstDef def);
+int dumpConstDecl(DumpDot *dot, ASTNode node);
+int dumpVarDecl(DumpDot *dot, ASTNode node);
+int dumpDecl(DumpDot *dot, ASTNode node);
+int dumpUnit(DumpDot *dot, ASTNode node);
+int dumpCond(DumpDot *dot, ASTNode node);
+int dumpFuncall(DumpDot *dot, ASTNode node);
 
 
 
-
-
-void 	dumpAST(ASTNode node);
+void dumpAST(DumpDot *dot, ASTTree ast);
 Loc	setLoc(ASTNode node, Loc loc);
 
 #endif // !def(_COMMON_H_)

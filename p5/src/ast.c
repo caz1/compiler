@@ -19,6 +19,16 @@ char *opname[]={
 	"Undefined Op"
 };
 
+void 
+destroyDecl(ASTNode *node)
+{
+    ASTNode temp = *node;
+    if (temp->kind == KConstDecl)
+        destroyConstDecl(node);
+    else 
+        destroyVarDecl(node);
+}
+
 ASTNode
 newNumber(int value)
 {
@@ -40,6 +50,7 @@ newName(Table ptab, const char *name, ASTNode exp)
 	else new->sym = newINTEntry(ptab, name, 1, exp); 
 	return new;
 }
+
 
 ASTNode 
 newArray(Table ptab, const char *name, int sizeInitial, List exp)
@@ -75,6 +86,7 @@ newPrefixExp(int op, ASTNode exp)
 	return new;
 }
 
+
 ASTNode
 newParenExp(ASTNode exp)
 {
@@ -88,6 +100,7 @@ newParenExp(ASTNode exp)
 	new->exp = newexp;
 	return new;
 }
+
 
 ASTNode
 newInfixExp(int op, ASTNode left, ASTNode right)
@@ -111,19 +124,6 @@ newCondExp(int op, ASTNode left, ASTNode right)
 	ASTNode new;
 	NEW0(new);
 	new->kind = KCondExp;
-	Cond newexp;
-	NEW0(newexp);
-	newexp->op = op;
-	newexp->kids[0] = left;
-	newexp->kids[1] = right;
-}
-
-ASTNode
-newAssignment(int op, ASTNode left, ASTNode right)
-{
-	ASTNode new;
-	NEW0(new);
-	new->kind = KAssignExp;
 	Exp newexp;
 	NEW0(newexp);
 	newexp->op = op;
@@ -133,6 +133,31 @@ newAssignment(int op, ASTNode left, ASTNode right)
 	return new;
 }
 
+
+ASTNode
+newAssignment(ASTNode left, ASTNode right)
+{
+	ASTNode new;
+	NEW0(new);
+	new->kind = KAssignExp;
+	asgnExp newexp;
+	NEW0(newexp);
+	newexp->left = left;
+	newexp->right = right;
+	new->asgnexp = newexp;
+	return new;
+}
+
+void
+destroyAsgnExp(ASTNode *node)
+{
+    ASTNode temp = *node;
+    destroyAST(&temp->asgnexp->left);
+    destroyAST(&temp->asgnexp->right);
+    free(temp->asgnexp);
+    (*node)->asgnexp = NULL;   
+}
+
 void
 destroyExp(Exp *pnode)
 {
@@ -140,29 +165,6 @@ destroyExp(Exp *pnode)
 	Exp node = *pnode;
 	destroyAST(&node->kids[0]);
 	destroyAST(&node->kids[1]);
-	free(node);
-	*pnode = NULL;
-}
-
-ASTNode
-newExpStmt(ASTNode exp)
-{
-	ASTNode new;
-	NEW0(new);
-	new->kind = KExpStmt;
-	ExpStmt newstmt;
-	NEW0(newstmt);
-	new->estmt = newstmt;
-	newstmt->exp = exp;
-	return new;
-}
-
-void
-destroyExpStmt(ExpStmt *pnode)
-{
-	if (*pnode == NULL) return;
-	ExpStmt node = *pnode;
-	destroyAST(&node->exp);
 	free(node);
 	*pnode = NULL;
 }
@@ -182,13 +184,14 @@ newBlock()
 }
 
 void
-destroyBlock(Block *pnode)
+destroyBlock(ASTNode *node)
 {
-	if (*pnode == NULL) return;
-	Block node = *pnode;
-	destroyList(&node->stmts, destroyAST);
-	free(node);
-	*pnode = NULL;
+	if (*node == NULL) return;
+	ASTNode temp = *node;
+	destroyList(&temp->block->decl, destroyDecl);
+    destroyList(&temp->block->stmts, destroyStmt);
+    free(temp->block);
+	(*node)->block = NULL;
 }
 
 ASTTree
@@ -209,19 +212,22 @@ destroyAST(ASTNode *pnode)
 	switch (kind) {
 	case KValue:
 	case KName:
+	case KFuncall:
 		break;
-	case KPrefixExp:
-	case KParenExp:
-	case KInfixExp:
-	case KAssignExp:
-		destroyExp(&node->exp);
-		break;
-	case KExpStmt:
-		destroyExpStmt(&node->estmt);
-		break;
-	case KBlock:
-		destroyBlock(&node->block);
-		break;
+    case KConstDecl: destroyConstDecl(&node->constdecl); break;
+    case KVarDecl: destroyVarDecl(&node->vardecl); break;
+	case KPrefixExp: 
+	case KParenExp: 
+	case KInfixExp: 
+	case KCondExp: destroyExp(&node->exp); break;
+	case KFuncDef: destroyFuncDef(&node); break;
+	case KStmt: destroyStmt(&node); break;
+	case KAssignExp: destroyAsgnExp(&node); break;
+	case KIFStmt: destroyIFStmt(&node); break;
+	case KBlock: destroyBlock(&node); break;
+    case KCompUnit: destroyCompUnit(&node); break;
+    case KWhileStmt: destroyWhileStmt(&node); break;
+    case KLVal: destroyLVal(&node); break;
 	default:
 		printf("Unhandled ASTNode kind!\n");
 	}
@@ -243,6 +249,15 @@ newCompUnit()
 	new->unit = newb;
 	return new;
 }
+
+void destroyCompUnit(ASTNode *node)
+{
+    ASTNode temp = *node;
+    destroyList(&temp->unit->decl, destroyDecl);
+    destroyList(&temp->unit->func, destroyFuncDef);
+    free(temp->unit);
+    (*node)->unit = NULL;
+}
 	
 ASTNode 
 newConstDecl(List def)
@@ -257,6 +272,14 @@ newConstDecl(List def)
 	return new;
 }
 
+void destroyConstDecl(ASTNode *decl)
+{
+    ASTNode temp = *decl;
+    destroyList(&temp->constdecl->def, destroyConstDef);
+    free(temp->constdecl);
+    (*decl)->constdecl = NULL;
+}
+
 ConstDef
 newConstDef(ASTNode name, List exp)
 {
@@ -265,6 +288,15 @@ newConstDef(ASTNode name, List exp)
 	new->name = name;
 	new->exp = exp;
 	return new;
+}
+
+void destroyConstDef(ConstDef *def)
+{
+    ConstDef temp = *def;
+    destroyAST(&temp->name);
+    destroyList(&temp->exp, destroyExp);
+    free(temp);
+    *def = NULL;
 }
 
 ASTNode 
@@ -284,6 +316,13 @@ newLVal(char *name, int type, ASTNode exp)
 	return new;
 }
 
+void destroyLVal(ASTNode *node)
+{
+    ASTNode temp = *node;
+    destroyAST(&temp->lval->exp);
+    free(temp->lval);
+    (*node)->lval = NULL;
+}
 ASTNode 
 newVarDecl(List var)
 {
@@ -297,7 +336,13 @@ newVarDecl(List var)
 	return new;
 }
 
-
+void destroyVarDecl(ASTNode *node)
+{
+    ASTNode temp = *node;
+    destroyList(&temp->vardecl->def, destroyVarDef); 
+    free(temp->vardecl);
+    (*node)->vardecl = NULL;
+}
 
 VarDef 
 newVarDef(ASTNode name, List Exp)
@@ -308,6 +353,15 @@ newVarDef(ASTNode name, List Exp)
 	new->exp = Exp; // first elem in exp is size if it is array
 	return new;
 }
+void destroyVarDef(VarDef *node)
+{
+    VarDef temp = *node;
+    destroyAST(&temp->name);
+    destroyList(&temp->exp, destroyExp);
+    free(temp);
+    *node = NULL;
+}
+
 
 ASTNode 
 newFuncDef(ASTNode name, ASTNode block)
@@ -321,6 +375,15 @@ newFuncDef(ASTNode name, ASTNode block)
 	new->func->name = name;
 	new->func->block = block;
 	return new;
+}
+
+void destroyFuncDef(ASTNode *node)
+{
+    ASTNode temp = *node;
+    destroyAST(&temp->func->block);
+    destroyAST(&temp->func->name);
+    free(temp->func);
+    (*node)->func = NULL;
 }
 
 ASTNode 
@@ -337,6 +400,14 @@ newWhileStmt(ASTNode cond, ASTNode block)
 	return new;
 }
 
+void destroyWhileStmt(ASTNode *node)
+{
+    ASTNode temp = *node;
+    destroyAST(&temp->whilestmt->cond);
+    destroyAST(&temp->whilestmt->stmt);
+    free(temp->whilestmt);
+    (*node)->whilestmt = NULL;
+}
 
 ASTNode
 newStmt(ASTNode exp, int type)
@@ -360,6 +431,21 @@ newStmt(ASTNode exp, int type)
 	return new;
 }
 
+void destroyStmt(ASTNode *node)
+{
+    ASTNode temp = *node;
+    Stmt newb = temp->stmt;
+    switch(temp->stmt->type)
+	{
+		case 0: destroyAsgnExp(&newb->asgnExp); break;
+		case 1: break;
+		case 2: destroyBlock(&newb->block); break;
+		case 3: destroyIFStmt(&newb->ifstmt); break;
+		case 4: destroyWhileStmt(&newb->whilestmt); break;
+	}
+	free(newb);
+    temp->stmt = NULL;
+}
 
 ASTNode 
 newIfStmt(ASTNode cond, ASTNode block, int havelse, ASTNode Else)
@@ -375,6 +461,16 @@ newIfStmt(ASTNode cond, ASTNode block, int havelse, ASTNode Else)
 	newb->stmt[1] = Else;
 	new->ifstmt = newb;
 	return new;
+}
+
+void destroyIFStmt(ASTNode *node)
+{
+    ASTNode temp = *node;
+    destroyAST(&temp->ifstmt->cond);
+    destroyAST(&temp->ifstmt->stmt[0]);    
+    destroyAST(&temp->ifstmt->stmt[1]);
+    free(temp->ifstmt);
+    (*node)->ifstmt = NULL;        
 }
 
 ASTNode
@@ -429,53 +525,7 @@ setLoc(ASTNode node, Loc loc)//fline, int fcol, int lline, int lcol)
 	return node->loc;
 }
 
-void
-dumpAST(ASTNode node)
+void dumpAST(DumpDot *dot, ASTTree ast)
 {
-	if (node == NULL) return;
-	int kind = node->kind;
-	
-	switch (kind) {
-	case KValue:
-		printf("%g", node->val);
-		break;
-	case KName:
-		printf("%s", node->sym->sym->name);
-		break;
-	case KPrefixExp:
-		printf("%s", opname[node->exp->op]);
-		dumpAST(node->exp->kids[0]);
-		break;
-	case KParenExp:
-		printf("(");
-		dumpAST(node->exp->kids[0]);
-		printf(")");
-		break;
-	case KInfixExp:
-		dumpAST(node->exp->kids[0]);
-		printf("%s", opname[node->exp->op]);
-		dumpAST(node->exp->kids[1]);
-		break;
-	case KAssignExp:
-		dumpAST(node->exp->kids[0]);
-		printf("%s", opname[node->exp->op]);
-		dumpAST(node->exp->kids[1]);
-		break;
-	case KExpStmt:
-		dumpAST(node->estmt->exp);
-		printf(";");
-		break;
-	case KBlock:
-	{
-		List stmts = node->block->stmts;
-		ListItr itr = getGListItr(stmts, 0);
-		while ( hasNext(itr) )  {
-			dumpAST((ASTNode)nextItem(itr));
-			printf("\n");
-		}
-		break;
-	}
-	default:
-		printf("Unhandled ASTNode kind!\n");
-	}
+    dumpUnit(dot, ast->root);
 }

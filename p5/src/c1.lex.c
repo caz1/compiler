@@ -883,32 +883,32 @@ YY_RULE_SETUP
 case 12:
 YY_RULE_SETUP
 #line 35 "config/c1.lex"
-{return(LT);}
+{yylval.ival=LT; return(LT);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 36 "config/c1.lex"
-{return(ISEQ);}
+{yylval.ival=ISEQ; return(ISEQ);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 37 "config/c1.lex"
-{return(LE);}
+{yylval.ival=LE; return(LE);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 38 "config/c1.lex"
-{return(GT);}
+{yylval.ival=GT; return(GT);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 39 "config/c1.lex"
-{return(GE);}
+{yylval.ival=GE; return(GE);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 40 "config/c1.lex"
-{return(NE);}
+{yylval.ival=NE; return(NE);}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP

@@ -32,12 +32,12 @@ void	{ return(VOID);}
 
 "\n"    {yycolumn = 1;}
 
-"<"	{return(LT);}
-"=="	{return(ISEQ);}
-"<="	{return(LE);}
-">"	{return(GT);}
-">="	{return(GE);}
-"!="	{return(NE);}
+"<"	    {yylval.ival=LT; return(LT);}
+"=="	{yylval.ival=ISEQ; return(ISEQ);}
+"<="	{yylval.ival=LE; return(LE);}
+">"	    {yylval.ival=GT; return(GT);}
+">="	{yylval.ival=GE; return(GE);}
+"!="	{yylval.ival=NE; return(NE);}
 "="	    {return(EQ);}
 "("	    {return(LPAR);}
 ")"	    {return(RPAR);}

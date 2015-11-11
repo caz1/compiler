@@ -70,9 +70,9 @@ int newNode_1(DumpDot *dot, List list)
 
 int dumpNum(DumpDot *dot, ASTNode node)
 {
-    if (node->kind != KValue) return;
-    printf("%d\n", node->val);
-    char *str;
+    if (node->kind != KValue) return 0;
+    //printf("%d\n", node->val);
+    char str[10];
     sprintf(str, "%d", node->val);
     return newNode(dot, 1, str);	
 }
@@ -93,9 +93,9 @@ int dumpStmt(DumpDot *dot, ASTNode node)
     {
         case 0: return dumpAsgnExp(dot, stmt->asgnExp);
         case 1: return dumpFuncall(dot, stmt->funcall);
-        case 2: return dumpIF(dot, stmt->ifstmt);
-        case 3: return dumpWhile(dot, stmt->whilestmt);
-        case 4: return dumpBlock(dot, stmt->block);
+        case 3: return dumpIF(dot, stmt->ifstmt);
+        case 4: return dumpWhile(dot, stmt->whilestmt);
+        case 2: return dumpBlock(dot, stmt->block);
         case 5: return newNode(dot, 1, "empty");
         default: return 0;
     }
@@ -108,7 +108,7 @@ int dumpWhile(DumpDot *dot, ASTNode node)
     if (node->kind != KWhileStmt) return 0;
     int i = newNode(dot, 3, "while", "cond", "block");
     int j = dumpCond(dot, node->whilestmt->cond);
-    int k = dumpBlock(dot, node->whilestmt->stmt);
+    int k = dumpStmt(dot, node->whilestmt->stmt);
     drawLine(dot, i, 1, j);
     drawLine(dot, i, 2, k);
     return i;
@@ -160,17 +160,12 @@ int dumpLVal(DumpDot *dot, ASTNode node)
     if (node->kind != KLVal) return 0;
     if (node->lval->type == 0 || node->lval->type == 2)
     {
-        int i = newNode(dot, 1, "lval");
-        int j = dumpName(dot, node->lval->name);
-        drawLine(dot, i, 0, j);
-        return i;
+        return dumpName(dot, node->lval->name);
     }
     else 
     {
-        int i = newNode(dot, 3, "lval", "[", "Exp", "]");
-        int j = dumpName(dot, node->lval->name);
+        int i = newNode(dot, 4, node->lval->name->asym->name, "[", "Exp", "]");
         int k = dumpExp(dot, node->lval->exp);
-        drawLine(dot, i, 0, j);
         drawLine(dot, i, 2, k);
         return i;
     }   
@@ -183,7 +178,7 @@ int dumpBlock(DumpDot *dot, ASTNode node)
     List stmts = node->block->stmts;
     Lnode temp;
     int i, j, k;
-    i = newNode(dot, 2, "decl", "temp");
+    i = newNode(dot, 2, "decl", "stmt");
     if (decl)
     {
         for (temp = decl->first; temp; temp = temp->next)
@@ -223,6 +218,7 @@ int dumpExp(DumpDot *dot, ASTNode node)
             case MINUS: op[0] = '-'; break;
             case MULT: op[0] = '*'; break;
             case DIV: op[0] = '/'; break;
+            case MOD: op[0] = '%'; break;
         }
              
         int i = newNode(dot, 3, "Exp", op, "Exp"); 
@@ -248,15 +244,39 @@ int dumpExp(DumpDot *dot, ASTNode node)
         drawLine(dot, i, 1, j);
         return i;
     }//TODO
+    else if (node->kind == KValue)
+        return dumpNum(dot, node);
+    else if (node->kind == KName)
+    {
+        if (node->sym->kind == INt) 
+            return dumpVar(dot, node);
+        else if (node->sym->kind == ARRAY)
+            return dumpArray(dot, node);
+        else return 0;
+    }
+    else if (node->kind == KLVal)
+    {
+        return dumpLVal(dot, node);
+    }
+    //return 0;
+    
 }
 
 int dumpArray(DumpDot *dot, ASTNode node)
 {
     if (node->kind != KName) return -1;
     if (node->sym->kind != ARRAY) return -1;
-    int i = newNode(dot, 4, node->sym->asym->name, "[", "exp", "]");
-    int j = dumpExp(dot, node->sym->asym->exp);// TODO
-    drawLine(dot, i, 2, j);
+    int i, j;
+    if (node->sym->asym->sizeInitial)
+    {
+        i = newNode(dot, 4, node->sym->asym->name, "[", "exp", "]");
+        j = dumpExp(dot, node->sym->asym->exp);// TODO
+        drawLine(dot, i, 2, j);
+    }
+    else
+    {
+        i = newNode(dot, 2, node->sym->asym->name, "[]");
+    } 
     return i;
 }
     
@@ -277,15 +297,15 @@ int dumpVarDef(DumpDot *dot, VarDef def)
     Lnode temp;
     if (def->name->sym->kind == INt) 
     {
-        j = dumpVar(dot, def->name);
         if (def->name->sym->sym->isInitial)
-        {
+        {        
+            j = dumpVar(dot, def->name);
             i = newNode(dot, 3, "name", "=", "exp");
             k = dumpExp(dot, def->name->sym->sym->exp);
             drawLine(dot, i, 2, k);
+            drawLine(dot, i, 0, j);
         }
-        else i = newNode(dot, 1, "name");//TODO
-        drawLine(dot, i, 0, j);
+        else i = newNode(dot, 1, def->name->sym->sym->name);//TODO
     }
     else if (def->name->sym->kind == ARRAY){
         j = dumpArray(dot, def->name);
@@ -297,6 +317,7 @@ int dumpVarDef(DumpDot *dot, VarDef def)
                 k = dumpExp(dot, temp->item);
                 drawLine(dot, i, 2, k);
             }
+            drawLine(dot, i, 0, j);
         }
         else i = newNode(dot, 1, "name");
     }
@@ -392,8 +413,36 @@ int dumpUnit(DumpDot *dot, ASTNode node)
     return i;
 }
 
+int dumpFuncall(DumpDot *dot, ASTNode node)
+{
+    if (node->kind != KFuncall) return 0;
+    int i = newNode(dot, 2, "name", "()");
+    int j = newNode(dot, 1, node->name);
+    drawLine(dot, i, 0, j);
+    return i;
+}
 
-
+int dumpCond(DumpDot *dot, ASTNode node)
+{
+    if (node->kind != KCondExp) return 0;
+    char *op;
+    switch(node->exp->op)
+    {
+        case ISEQ: op = "==\0"; break;
+        case GT: op = "\\>\0"; break;
+        case LT: op = "\\<\0"; break;
+        case LE: op = "\\<=\0"; break;
+        case GE: op = "\\>=\0"; break;
+        case NE: op = "!=\0"; break;
+        default: op = "\0";
+    }
+    int i = newNode(dot, 3, "exp", op, "exp");
+    int j = dumpExp(dot, node->exp->kids[0]);
+    int k = dumpExp(dot, node->exp->kids[1]);
+    drawLine(dot, i, 0, j);
+    drawLine(dot, i, 2, k);
+    return i;
+}
 
 
 
