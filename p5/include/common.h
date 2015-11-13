@@ -56,20 +56,20 @@ typedef struct table {
 #define HASHSIZE 256
 
 // Function declarations corresponding to symbolic table
-Table 	newTable();
-Entry	newINTEntry(Table tab, const char *name, int isInitial, struct astnode *exp);
-Entry	newArrayEntry(Table tab, const char *name, int sizeInitial, List exp);
-Entry	newFuncEntry(Table tab, const char *name);
-Entry	lookup(Table tab, const char *name, int type);
-Symbol 	getSym(Table ptab, const char *name);
+Table 	    newTable();
+Entry	    newINTEntry(Table tab, const char *name, int isInitial, struct astnode *exp);
+Entry	    newArrayEntry(Table tab, const char *name, int sizeInitial, List exp);
+Entry	    newFuncEntry(Table tab, const char *name);
+Entry	    lookup(Table tab, const char *name, int type);
+Symbol 	    getSym(Table ptab, const char *name);
 arraySymbol getaSym(Table tab, const char *name);
-funcSymbol getfSym(Table tab, const char *name);
-int	*getVal(Table ptab, const char *name, int *size);
-Symbol	lookupvar(Table tab, const char *name);
+funcSymbol  getfSym(Table tab, const char *name);
+int	        *getVal(Table ptab, const char *name, int *size);
+Symbol	    lookupvar(Table tab, const char *name);
 arraySymbol lookuparray(Table tab, const char *name);
-funcSymbol lookupfunc(Table tab, const char *name);
-Symbol 	setVal(Table ptab, const char *name, int val);
-void 	destroyTable();
+funcSymbol  lookupfunc(Table tab, const char *name);
+Symbol 	    setVal(Table ptab, const char *name, int val);
+void 	    destroyTable();
 
 // Error/warning message
 // You could add more kinds of error messages into errcfg.h 
@@ -122,19 +122,19 @@ typedef struct {
 
 
 typedef struct {
-	List  decl;
+	    List  decl;
         List stmts;
 } *Block;
 
 typedef struct {
         int type;
         union {
-                struct astnode *asgnExp;
-                struct astnode *funcall;
-                struct astnode *ifstmt;
+            struct astnode *asgnExp;
+            struct astnode *funcall;
+            struct astnode *ifstmt;
         	struct astnode *whilestmt;
 	        Block block;
-		struct astnode *empty;
+		    struct astnode *empty;
         };
 } *Stmt; 
 
@@ -156,13 +156,13 @@ typedef struct {
 } *WHILEStmt;
 
 typedef struct {
-	struct astnode *name; // information stored in name such as type and size
-        List exp; // if it is an array, the fist element in exp is the length
+	    struct astnode *name; // information stored in name such as type and size
+        Loc loc;
 } *ConstDef;      
 
 typedef struct {
         struct astnode *name;
-        List exp; // if it is an array, the first element in exp is the length
+        Loc loc;
 } *VarDef;
 
 typedef struct {
@@ -178,14 +178,14 @@ typedef struct {
 } *asgnExp;        
 
 typedef struct {
-	Entry name;
-	int type;	
-	struct astnode *exp;
+	    Entry name;
+	    int type;	
+	    struct astnode *exp;
 } *LVal;
 
 typedef struct {
-	List decl;
-	List func;
+	    List decl;
+	    List func;
 } *CompUnit;
 
          
@@ -194,38 +194,37 @@ typedef struct astnode{
 		KValue = 0x200,		// numerial value:
 		KName,			// name, such as variable name
 		KConstDecl,
-                KVarDecl,
+        KVarDecl,
 		KFuncall,
 		KCompUnit,
-                KWhileStmt,
-                KLVal,
-                KIFStmt,
+        KWhileStmt,
+        KLVal,
+        KIFStmt,
 		KStmt,
-                KFuncDef, 
+        KFuncDef, 
 		KPrefixExp,		// prefix expression
 		KInfixExp,		// infix expression
 		KAssignExp,		// assignment expression
-		KParenExp,		// parentheses expression
 		KBlock,			// block
 		KCondExp		// condition expression 
 	} kind;	// kind of the AST node
 	union {		// information of various kinds of AST node 
 		int  val;		// KValue: numerial value
-		Entry sym;		// KName/KLVal: symbols 
-        ConstDecl constdecl;
-        VarDecl vardecl;
-		char *name;
-		CompUnit unit;
-        WHILEStmt whilestmt;
-        IFStmt ifstmt;
-		LVal lval;
-		Stmt stmt;
-        FuncDef func;                
+		Entry sym;		// KName: symbols 
+        ConstDecl constdecl; // KConstDecl
+        VarDecl vardecl;     // KVarDecl
+		char *name;          // KFuncall  
+		CompUnit unit;       // KCompUnit
+        WHILEStmt whilestmt; // KWhileStmt
+        IFStmt ifstmt;       // KIFStmt
+		LVal lval;           // KLVal
+		Stmt stmt;           // KStmt
+        FuncDef func;        // KFuncDef        
 		Exp   exp;		// KPrefixExp,
-					// KInfixExp,
-		asgnExp asgnexp;	// KAssignExp,
-					// KParenExp
-
+					    // KInfixExp,
+					    // Kcond
+					    // KParenExp
+		asgnExp asgnexp;	// KAssignExp
 		Block  block;		// KBlock
 	};
 	Loc 	loc;			// locations
@@ -241,7 +240,7 @@ ASTNode newName(Table ptab, const char *name, ASTNode exp);
 ASTNode newArray(Table ptab, const char *name, int sizeInitial, List exp);
 ASTNode newFunc(Table ptab, const char *name);
 ASTNode newPrefixExp(int op, ASTNode exp);
-ASTNode newParenExp(ASTNode exp);
+
 ASTNode newInfixExp(int op, ASTNode left, ASTNode right);
 ASTNode newAssignment(ASTNode left, ASTNode right);
 ASTNode newIfStmt(ASTNode cond, ASTNode block, int havelse, ASTNode Else);
@@ -249,10 +248,10 @@ ASTNode newFuncall(const char *name);
 ASTNode newStmt(ASTNode exp, int type);
 ASTNode newWhileStmt(ASTNode cond, ASTNode block);
 ASTNode newFuncDef(ASTNode name, ASTNode block);
-VarDef newVarDef(ASTNode name, List Exp);
+VarDef  newVarDef(ASTNode name);
 ASTNode newVarDecl(List var);
 ASTNode newLVal(char *name, int type, ASTNode exp);
-ConstDef newConstDef(ASTNode name, List exp);
+ConstDef newConstDef(ASTNode name);
 ASTNode newConstDecl(List def);
 ASTNode newCompUnit();
 void	destroyExp(Exp *pexp);
@@ -265,7 +264,7 @@ void    destroyName(ASTNode *node);
 void    destroyArray(ASTNode *node);
 void    destroyFunc(ASTNode *node);
 void    destroyPrefixExp(ASTNode *node);
-void    destroyParenExp(ASTNode *node);
+
 void    destroyInfixExp(ASTNode *node);
 void    destroyCond(ASTNode *node);
 void    destroyCompUnit(ASTNode *node);
@@ -281,30 +280,30 @@ void    destroyIFStmt(ASTNode *node);
 void    destroyFuncall(ASTNode *node);
 
 
-int dumpNum(DumpDot *dot, ASTNode node);
-int dumpVar(DumpDot *dot, ASTNode node);
-int dumpStmt(DumpDot *dot, ASTNode node);
-int dumpWhile(DumpDot *dot, ASTNode node);
-int dumpIF(DumpDot *dot, ASTNode node);
-int dumpAsgnExp(DumpDot *dot, ASTNode node);
-int dumpLVal(DumpDot *dot, ASTNode node);
-int dumpBlock(DumpDot *dot, ASTNode node);
-int dumpName(DumpDot *dot, Entry name);
-int dumpExp(DumpDot *dot, ASTNode node);
-int dumpArray(DumpDot *dot, ASTNode node);
-int dumpFunc(DumpDot *dot, ASTNode node);
-int dumpVarDef(DumpDot *dot, VarDef def);
-int dumpConstDef(DumpDot *dot, ConstDef def);
-int dumpConstDecl(DumpDot *dot, ASTNode node);
-int dumpVarDecl(DumpDot *dot, ASTNode node);
-int dumpDecl(DumpDot *dot, ASTNode node);
-int dumpUnit(DumpDot *dot, ASTNode node);
-int dumpCond(DumpDot *dot, ASTNode node);
-int dumpFuncall(DumpDot *dot, ASTNode node);
+int     dumpNum(DumpDot *dot, ASTNode node);
+int     dumpVar(DumpDot *dot, ASTNode node);
+int     dumpStmt(DumpDot *dot, ASTNode node);
+int     dumpWhile(DumpDot *dot, ASTNode node);
+int     dumpIF(DumpDot *dot, ASTNode node);
+int     dumpAsgnExp(DumpDot *dot, ASTNode node);
+int     dumpLVal(DumpDot *dot, ASTNode node);
+int     dumpBlock(DumpDot *dot, ASTNode node);
+int     dumpName(DumpDot *dot, Entry name);
+int     dumpExp(DumpDot *dot, ASTNode node);
+int     dumpArray(DumpDot *dot, ASTNode node);
+int     dumpFunc(DumpDot *dot, ASTNode node);
+int     dumpVarDef(DumpDot *dot, VarDef def);
+int     dumpConstDef(DumpDot *dot, ConstDef def);
+int     dumpConstDecl(DumpDot *dot, ASTNode node);
+int     dumpVarDecl(DumpDot *dot, ASTNode node);
+int     dumpDecl(DumpDot *dot, ASTNode node);
+int     dumpUnit(DumpDot *dot, ASTNode node);
+int     dumpCond(DumpDot *dot, ASTNode node);
+int     dumpFuncall(DumpDot *dot, ASTNode node);
 
 
 
-void dumpAST(DumpDot *dot, ASTTree ast);
+void    dumpAST(DumpDot *dot, ASTTree ast);
 Loc	setLoc(ASTNode node, Loc loc);
 
 #endif // !def(_COMMON_H_)

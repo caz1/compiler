@@ -21,13 +21,15 @@ static void
 destroyBucket(Entry *list)
 {
 	Entry node = *list, temp;
-	while ( node != NULL ) {
+	while ( node != NULL ) 
+	{
 		temp = node->next;
 		free(node);
 		node = temp;
 	}
 	*list = NULL;
 }
+
 
 /**
  * Destroys the specified table
@@ -40,7 +42,7 @@ destroyTable(Table *tab)
 		return;
 	Entry *bucket = (*tab)->buckets, *bucket_end = (*tab)->buckets+256;
 	while (bucket < bucket_end ) {
-		destroyBucket(bucket);
+		//destroyBucket(bucket);
 		bucket++;
 	}
 	free(*tab);

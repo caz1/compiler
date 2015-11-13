@@ -268,6 +268,7 @@ listclear(List list, void destroyItem())
 		node->item = NULL;
 		free(node);
 		node = next;
+		list->size--;
 	}
 	list->first = list->last = NULL;
 	list->size = 0;

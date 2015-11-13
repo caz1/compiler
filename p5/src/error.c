@@ -92,19 +92,19 @@ dumpErrmsg(Errmsg error)
 	FILE *fp= fopen(error->filename, "r");
 	char c, *str = (char *)malloc(500 * sizeof(char));
 	if ( error->isWarn )
-		printf("\033[1;31;40mWarning\033[0m");
+		fprintf(outfp, "\033[1;31;40mWarning\033[0m");
 	else
-		printf("\033[1;31;40mError\033[0m");
-	printf(" in file \033[1;33;40m%s\033[0m @(%d, %d): %s\n", error->filename, error->line, error->column, error->msg);
+		fprintf(outfp, "\033[1;31;40mError\033[0m");
+	fprintf(outfp, " in file \033[1;33;40m%s\033[0m @(%d, %d): %s\n", error->filename, error->line, error->column, error->msg);
 	for (i = 0, fgetline(str, fp); i < error->line - 1; i++, fgetline(str, fp));	
-	printf("%s\n", str);
+	fprintf(outfp, "%s\n", str);
 	
 	for (i = 0; i < error->column - 1; i++)
 		if (str[i] == '\t')
-			printf("\t");
+			fprintf(outfp, "\t");
 		else 
-			printf(" ");
-	printf("\033[1;34;40m^\033[0m\n");
+			fprintf(outfp, " ");
+	fprintf(outfp, "\033[1;34;40m^\033[0m\n");
 	free(str);
 }
 
@@ -127,7 +127,7 @@ dumpErrors(ErrFactory errfactory)
 	List errors = errfactory->errors;
 	int i = 0, size = errors->size;
 	if (size > 0)	
-		printf("\nFound %d errors at least:\n", 
+		fprintf(outfp, "\nFound %d errors at least:\n", 
 			size);
 	
 	ListItr itr = getGListItr(errors, 0);
@@ -145,7 +145,7 @@ dumpWarnings(ErrFactory errfactory)
 	List warns = errfactory->warnings;
 	int i = 0, size = warns->size;
 	if (size > 0)
-		printf("\nFound %d warnings at least:\n", 
+		fprintf(outfp, "\nFound %d warnings at least:\n", 
 			size);
 	
 	ListItr itr = getGListItr(warns, 0);

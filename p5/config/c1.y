@@ -4,13 +4,15 @@
 #include "common.h"
 #include <unistd.h>
 #include "util.h"
-ASTTree ast;	
-ErrFactory errfactory;
-Table symtab;
-List list;
-bool haveError;
+#include <mcheck.h>
+
 extern int yylineno;
 extern int yycolumn;
+extern ASTTree ast;	
+extern ErrFactory errfactory;
+extern Table symtab;
+extern List list;
+extern bool haveError;
 %}
 
 %union {
@@ -61,72 +63,97 @@ extern int yycolumn;
 golbal 
 	: CompUnit
 	  {
-		ast->root = $1;
+		if (!haveError)
+		    ast->root = $1;
 	  }
 
 CompUnit
 	: CompUnit Decl
 	  {
 		debug("CompUnit ::= CompUnit Decl\n");
-		addLast($1->unit->decl, $2);
-		$$ = $1;
-
+		if (!haveError)
+		{
+		    addLast($1->unit->decl, $2);
+		    $$ = $1;
+	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| CompUnit FuncDef
 	  {
 		debug("CompUnit ::= CompUnit FuncDef\n");
-		addLast($1->unit->func, $2);
-		$$ = $1;
-
+		if (!haveError)
+		{
+		    addLast($1->unit->func, $2);
+		    $$ = $1;
+	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| Decl
 	  {
-		debug("CompUnit ::= Decl FuncDef\n");
-		$$ = newCompUnit();
-		addLast($$->unit->decl, $1);
-		addFirst(list, $$);
-
+		debug("CompUnit ::= Decl\n");
+		if (!haveError)
+		{
+		    $$ = newCompUnit();
+		    addLast($$->unit->decl, $1);
+		    addFirst(list, $$);
+	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| FuncDef
 	  {
 		debug("CompUnit ::= FuncDef\n");
-		$$ = newCompUnit();
-		addLast($$->unit->func, $1);
-		addFirst(list, $$);
-
+		if (!haveError)
+		{
+		    $$ = newCompUnit();
+		    addLast($$->unit->func, $1);
+		    addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+       }
 	  } 
 Decl
 	: ConstDecl
 	  {
 		debug("Decl ::= ConstDecl\n");
-		$$ = $1;
-
+		if (!haveError)
+		{
+	    	$$ = $1;
+        	setLoc($$, (Loc)&(@$));	    
+	    }
 	  }
 
 	| VarDecl
 	  {
 		debug("Decl ::= VarDecl\n");
-		$$ = $1;
-
+		if (!haveError)
+		{
+			$$ = $1;
+	        setLoc($$, (Loc)&(@$));	
+	    }
 	  }
 
 ConstDecl
 	: CONST INT MultiConstDef SEMICOLON
 	  {
 		debug("ConstDecl ::= const int MultiConstDef ;\n");
-		$$ = newConstDecl($3);
-		addFirst(list, $$);
-
+		if (!haveError)
+		{
+		    $$ = newConstDecl($3);
+	    	addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| CONST MultiConstDef SEMICOLON
 	  {
 		debug("ConstDecl ::= const MultiConstDef ;\n");
-		$$ = newConstDecl($2);
-        addFirst(list, $$);
-		newWarning(errfactory, MissingVarType, 
-			@2.first_line, @2.first_column, 
-			filename);
-
+		if (!haveError)
+		{
+		    $$ = newConstDecl($2);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+		    newWarning(errfactory, MissingVarType, 
+			    @2.first_line, @2.first_column, 
+		    	filename);
+        }
 	  }
 	
 
@@ -134,17 +161,21 @@ MultiConstDef
 	: MultiConstDef COMMA ConstDef
 	  {
 		debug("MultiConstDecl ::= MultiConstDecl , ConstDef\n");
-		addLast($1, $3);
-		$$ = $1;		
+		if (!haveError)
+		{
+		    addLast($1, $3);
+		    $$ = $1;		
+	    }
 	  }
 
 	| ConstDef
 	  {
 		debug("MultiConstDecl ::= ConstDef\n");
-		$$ = newList();
-		addLast($$, $1);
-        addFirst(list, $$);
-
+		if (!haveError)
+        {
+		    $$ = newList();
+		    addLast($$, $1);
+        }
 	  }
 
 
@@ -152,68 +183,82 @@ ConstDef
 	: ID EQ Exp
 	  {
 		debug("ConstDef ::= ID EQ Exp\n");
-		List new = newList();
-		addLast(new, $3);
-		$$ = newConstDef(newName(symtab, $1, $3), new);
-        addFirst(list, $$);		
-
+		if (!haveError)
+		{
+	    	$$ = newConstDef(newName(symtab, $1, $3));
+  	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| ID LBRACKET Exp RBRACKET EQ LBRACE MultiExp RBRACE 
 	  {
 		debug("ConstDef ::= ID[exp] EQ {MultiExp}\n");
-		addFirst($7, $3);
-		$$ = newConstDef(newArray(symtab, $1, 1, $7), $7);
-        addFirst(list, $$);
-
+		if (!haveError)
+		{		
+		    addFirst($7, $3);
+		    $$ = newConstDef(newArray(symtab, $1, 1, $7));
+  	        setLoc($$, (Loc)&(@$));		    
+        }
   	  }
 	|ID LBRACKET RBRACKET EQ LBRACE MultiExp RBRACE 
 	  {
 		debug("ConstDef ::= ID[] EQ {MultiExp}\n");
-		$$ = newConstDef(newArray(symtab, $1, 0, $6), $6);
-        addFirst(list, $$);
-
+		if (!haveError)
+        {
+		    $$ = newConstDef(newArray(symtab, $1, 0, $6));
+ 	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 
 MultiExp
 	: MultiExp COMMA Exp
 	  {
 		debug("MultiExp ::= MultiExp , Exp\n");
-		addLast($1, $3);
-		$$ = $1;
-
+		if (!haveError)
+		{
+		    addLast($1, $3);
+		    $$ = $1;
+        }
 	  }
 	| Exp
 	  {
 		debug("MultiExp ::= Exp\n");
-		$$ = newList();
-		addLast($$, $1);
-
+		if (!haveError)
+		{
+		    $$ = newList();
+		    addLast($$, $1);
+        }
 	  }
 
 VarDecl	
 	: INT MultiVar SEMICOLON
 	  {
 		debug("VarDecl ::= int MultiVar ;\n");
-		$$ = newVarDecl($2);
-        addFirst(list, $$);
-
+		if (!haveError)
+		{
+    		$$ = newVarDecl($2);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 
 MultiVar
 	: MultiVar COMMA Var
 	  {
 		debug("MultiVar ::= MultiVar , Var\n");
-		addLast($1, $3);
-		$$ = $1;
-
+		if (!haveError)
+		{
+    		addLast($1, $3);
+    		$$ = $1;
+       }
 	  }
 	| Var
 	  {
 		debug("MultiVar ::= Var\n");
-		$$ = newList();
-		addLast($$, $1);
-        addFirst(list, $$);
-
+		if (!haveError)		
+		{
+		    $$ = newList();
+		    addLast($$, $1);
+        }
 	  }
 
 
@@ -221,42 +266,50 @@ Var
 	: ID
 	  {
 		debug("Var ::= ID\n");
-		$$ = newVarDef(newName(symtab, $1, NULL), newList());
-        addFirst(list, $$);
-
+		if (!haveError)
+		{
+		    $$ = newVarDef(newName(symtab, $1, NULL));
+ 	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| ID LBRACKET Exp RBRACKET
 	  {
 		debug("Var ::= ID[Exp]\n");
-		List tmp = newList();
-		addLast(tmp, $3);
-		$$ = newVarDef(newArray(symtab, $1, 1, tmp), NULL);
-        addFirst(list, $$);
-
+		if (!haveError)
+		{
+		    List tmp = newList();
+		    addLast(tmp, $3);
+		    $$ = newVarDef(newArray(symtab, $1, 1, tmp));
+ 	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| ID EQ Exp//
 	  {
 		debug("Var ::= ID EQ Exp\n");
-		List tmp = newList();
-		addLast(tmp, $3);
-		$$ = newVarDef(newName(symtab, $1, $3), tmp);
-        addFirst(list, $$);
-
+		if (!haveError)
+		{
+		    $$ = newVarDef(newName(symtab, $1, $3));
+ 	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| ID LBRACKET Exp RBRACKET EQ LBRACE MultiExp RBRACE
 	  {
 		debug("Var ::= ID[exp] EQ { MultiExp }\n");
-		addFirst($7, $3); 
-		$$ = newVarDef(newArray(symtab, $1, 1, $7), $7);
-        addFirst(list, $$);
-
+		if (!haveError)
+		{
+		    addFirst($7, $3); 
+		    $$ = newVarDef(newArray(symtab, $1, 1, $7));
+ 	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| ID LBRACKET RBRACKET EQ LBRACE MultiExp RBRACE
 	  {
 		debug("Var ::= ID[] EQ { MultiExp }\n");
-		$$ = newVarDef(newArray(symtab, $1, 0, $6), $6); // 
-        addFirst(list, $$);
-
+		if (!haveError)
+		{
+		    $$ = newVarDef(newArray(symtab, $1, 0, $6));  
+ 	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 
 
@@ -264,9 +317,12 @@ FuncDef
 	: VOID ID LPAR RPAR Block
 	  {
 		debug("FuncDef ::= void ID() Block\n");
-		$$ = newFuncDef(newFunc(symtab, $2), $5);
-        addFirst(list, $$);
-
+		if (!haveError)
+		{
+		    $$ = newFuncDef(newFunc(symtab, $2), $5);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+        }
 	  }
 	| VOID ID LPAR Block
 	  {
@@ -275,7 +331,8 @@ FuncDef
 			@3.last_line, @3.last_column, 
 			filename);
 			
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }
 	| VOID ID RPAR Block
@@ -284,7 +341,8 @@ FuncDef
 		newError(errfactory, MissingLParen,
 			@2.last_line, @2.last_column, 
 			filename);
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }
 
@@ -292,42 +350,66 @@ Block
 	: LBRACE MultiBlockItem RBRACE
 	  {
 		debug("Block ::= { MultiBlockItem }\n");
-		$$ = $2;
+		if (!haveError)
+		{
+		    $$ = $2;
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| LBRACE RBRACE
 	  {
 		debug("Block ::= {}\n");
-		$$ = newBlock();
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newBlock();
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 
 MultiBlockItem
 	: MultiBlockItem BlockItem
 	  {
 		debug("MultiBlockItem ::= MultiBlockItem BlockItem\n");
-		if ($2->kind == KVarDecl || $2->kind == KConstDecl) addLast($1->block->decl, $1);
-		else addLast($1->block->stmts, $2);
-		$$ = $1;
+		if (!haveError)
+		{
+		    if ($2->kind == KVarDecl || $2->kind == KConstDecl) addLast($1->block->decl, $2);
+		    else addLast($1->block->stmts, $2);
+		    $$ = $1;
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| BlockItem
 	  {
 		debug("MultiBlockItem ::= BlockItem\n");
-		$$ = newBlock();
-		if ($1->kind == KVarDecl || $1->kind == KConstDecl) addLast($$->block->decl, $1);
-		else addLast($$->block->stmts, $1);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newBlock();
+		    if ($1->kind == KVarDecl || $1->kind == KConstDecl) addLast($$->block->decl, $1);
+	    	else addLast($$->block->stmts, $1);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }	
 
 BlockItem
 	: Decl 
 	  {
 		debug("BlockItem ::= Decl \n");
-		$$ = $1;
+		if (!haveError)
+		{
+    		$$ = $1;
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| Stmt
 	  {
 		debug("BlockItem ::= Stmt\n");
-		$$ = $1;
+		if (!haveError)
+		{
+    		$$ = $1;
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 
 
@@ -335,14 +417,22 @@ Stmt
 	: LVal EQ Exp SEMICOLON 
 	  {
 		debug("Stmt ::= LVal EQ Exp ;\n");
-		$$ = newStmt(newAssignment($1, $3), 0);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newStmt(newAssignment($1, $3), 0);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| ID LPAR RPAR SEMICOLON//
 	  {
 		debug("Stmt ::= ID() ;\n");
-		$$ = newStmt(newFuncall($1), 1);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newStmt(newFuncall($1), 1);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| ID LPAR SEMICOLON
 	  {
@@ -350,7 +440,8 @@ Stmt
 		newError(errfactory, MissingRParen, 
 			@3.first_line, @3.first_column,
 			filename);	
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }  
 	| ID RPAR SEMICOLON
@@ -359,47 +450,72 @@ Stmt
 		newError(errfactory, MissingLParen, 
 			@2.first_line, @2.first_column,
 			filename);	
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }  
 	| Block 
 	  {
 		debug("Stmt ::= Block\n");
-		$$ = newStmt($1, 2);		
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newStmt($1, 2);		
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| IFStmt
 	  {
 		debug("Stmt ::= IFStmt\n");
-		$$ = newStmt($1, 3);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newStmt($1, 3);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| WHILEStmt
 	  {
 		debug("Stmt ::= WHILEStmt\n");
-		$$ = newStmt($1, 4);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newStmt($1, 4);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| SEMICOLON
 	  {
 		debug("Stmt ::= ;\n");
-		$$ = newStmt(NULL, 5);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newStmt(NULL, 5);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 
 WHILEStmt
 	: WHILECOND Stmt 
 	  {
 		debug("Stmt ::= WHILECOND Stmt\n");
-		$$ = newWhileStmt($1, $2);
-        addFirst(list, $$);
+		if (!haveError)
+		{		
+		    $$ = newWhileStmt($1, $2);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 
 WHILECOND
 	: WHILE LPAR Cond RPAR
 	  {
 		debug("WHILECOND ::= while(Cond)\n");
-		$$ = $3;	
+		if (!haveError)
+		{		
+			$$ = $3;	
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| WHILE LPAR Cond 
 	  {
@@ -407,7 +523,8 @@ WHILECOND
 		newError(errfactory, MissingRParen, 
 			@3.last_line, @3.last_column, 
 			filename);
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }
 	| WHILE Cond RPAR
@@ -416,7 +533,8 @@ WHILECOND
 		newError(errfactory, MissingLParen, 
 			@1.last_line, @1.last_column,
 			filename);
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }
 
@@ -425,14 +543,22 @@ IFStmt
 	 IFCOND Stmt ELSE Stmt
 	  {
 		debug("IFStmt ::= IFCOND Stmt ELSE Stmt\n");
-		$$ = newIfStmt($1, $2, 1, $4);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newIfStmt($1, $2, 1, $4);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| IFCOND Stmt %prec nonelse
 	  {
-		debug("IFStmt ::= IFCOND Cond Stmt\n");	
-		$$ = newIfStmt($1, $2, 0, NULL);
-        addFirst(list, $$);
+		debug("IFStmt ::= IFCOND Stmt\n");	
+		if (!haveError)
+		{		
+		    $$ = newIfStmt($1, $2, 0, NULL);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	
 
@@ -440,7 +566,11 @@ IFCOND
 	: IF LPAR Cond RPAR
 	  {
 		debug("IFCOND ::= IF (Cond)\n");
-		$$ = $3;
+		if (!haveError)
+		{		
+    		$$ = $3;
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| IF LPAR Cond
 	  {
@@ -448,7 +578,8 @@ IFCOND
 		newError(errfactory, MissingRParen, 
 			@3.last_line, @3.last_column, 
 			filename);	
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }
 	| IF Cond RPAR
@@ -457,7 +588,8 @@ IFCOND
 		newError(errfactory, MissingLParen, 
 			@2.first_line, @2.first_column, 
 			filename);	
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }
 
@@ -465,63 +597,96 @@ LVal
 	: ID
 	  {
 	  	debug("LVal ::= ID\n");
-		if (lookupvar(symtab, $1))
-			$$ = newLVal($1, 0, NULL);
-		else if (lookupfunc(symtab, $1))
-			$$ = newLVal($1, 2, NULL);
-		else 
-			newError(errfactory, UndefinedVar,
-				@1.first_line, @1.first_column,
-				filename);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    if (lookupvar(symtab, $1))
+		    	$$ = newLVal($1, 0, NULL);
+		    else if (lookupfunc(symtab, $1))
+			    $$ = newLVal($1, 2, NULL);
+	    	else 
+	    		newError(errfactory, UndefinedVar,
+	    			@1.first_line, @1.first_column,
+	    			filename);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| ID LBRACKET Exp RBRACKET
 	  {
 	  	debug("LVal ::= ID[Exp]\n");
-		if (lookuparray(symtab, $1))
-			$$ = newLVal($1, 1, $3);
-		else 
-			newError(errfactory, UndefinedVar, 
-			@1.first_line, @1.first_column, 
-			filename);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    if (lookuparray(symtab, $1))
+		    	$$ = newLVal($1, 1, $3);
+		    else 
+			    newError(errfactory, UndefinedVar, 
+			    @1.first_line, @1.first_column, 
+			    filename);
+            addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
+	  
 Cond
 	:  Exp LT Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp < exp\n");
-		$$ = newCondExp($2, $1, $3);
-        addFirst(list, $$);
+		if (!haveError)
+        {		
+		    $$ = newCondExp($2, $1, $3);
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| Exp ISEQ Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp == exp\n");
-		$$ = newCondExp($2, $1, $3);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newCondExp($2, $1, $3);
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| Exp LE Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp <= exp\n");
-		$$ = newCondExp($2, $1, $3);
-        addFirst(list, $$);
+		if (!haveError)
+        {		
+		    $$ = newCondExp($2, $1, $3);
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| Exp GT Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp > exp\n");
-		$$ = newCondExp($2, $1, $3);
-        addFirst(list, $$);	 
+		if (!haveError)
+        {
+		    $$ = newCondExp($2, $1, $3);
+            //addFirst(list, $$);	 
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| Exp GE Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp >= exp\n");
-		$$ = newCondExp($2, $1, $3);
-        addFirst(list, $$);
+		if (!haveError)
+		{	
+		    $$ = newCondExp($2, $1, $3);
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }	
 	| Exp NE Exp %prec UMINUS
 	  {
 		debug("Cond ::= exp != exp\n");
-		$$ = newCondExp($2, $1, $3);
-        addFirst(list, $$);
+		if (!haveError)
+		{		
+		    $$ = newCondExp($2, $1, $3);
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 
 
@@ -530,32 +695,52 @@ Exp
 	: Exp PLUS Exp  
 	  {
 		debug("exp ::= exp PLUS exp\n");
-		$$ = newInfixExp($2, $1, $3); 
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newInfixExp($2, $1, $3); 
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| Exp MINUS Exp 
 	  {
 		debug("exp ::= exp MINUS exp\n");
-		$$ = newInfixExp($2, $1, $3); 
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newInfixExp($2, $1, $3); 
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| Exp MULT Exp  
 	  {
 		debug("exp ::= exp MULT exp\n");
-		$$ = newInfixExp($2, $1, $3); 
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newInfixExp($2, $1, $3); 
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| Exp DIV Exp 
 	  {
 		debug("exp ::= exp DIV exp\n");
-		$$ = newInfixExp($2, $1, $3); 
-        addFirst(list, $$);
+		if (!haveError)		
+        {   
+    		$$ = newInfixExp($2, $1, $3); 
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| Exp MOD Exp  
 	  {
 		debug("exp ::= exp MOD exp\n");
-		$$ = newInfixExp($2, $1, $3); 
-        addFirst(list, $$);
+		if (!haveError)
+		{		
+		    $$ = newInfixExp($2, $1, $3); 
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	   }
 	| Exp Exp %prec A 
 	  {
@@ -563,39 +748,58 @@ Exp
 		newError(errfactory, MissingOp,
 			@2.first_line, @2.first_column -1, 
 			filename);	
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }
 	 | PLUS Exp %prec PLUS
  	  {
 	  	debug("exp ::= PLUS exp\n");
-	   	$$ = newPrefixExp($1, $2); 	
-        addFirst(list, $$);
+		if (!haveError)
+		{	  	
+	   	    $$ = newPrefixExp($1, $2); 	
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 
 	| MINUS Exp %prec MINUS
  	  {
 	  	debug("exp ::= MINUS exp\n");
-	  	$$ = newPrefixExp($1, $2); 
-        addFirst(list, $$);
+		if (!haveError)
+		{	  	
+	  	    $$ = newPrefixExp($1, $2); 
+            //addFirst(list, $$);
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| NUMBER 
 	  {
 		debug("exp ::= NUMBER\n");
-		$$ = newNumber($1);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = newNumber($1);
+            //addFirst(list, $$);  
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }	
 	| LVal
 	  {
 		debug("exp ::= LVal\n");
-		$$ = $1;
-        addFirst(list, $$);
+		if (!haveError)
+		{
+		    $$ = $1;
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| LPAR Exp RPAR %prec UMINUS
 	  {
 		debug("exp ::= ( exp )\n");
-    	$$ = newParenExp($2);
-        addFirst(list, $$);
+		if (!haveError)
+		{
+    	    $$ = $2;
+ 	        setLoc($$, (Loc)&(@$));		    
+	    }
 	  }
 	| LPAR Exp %prec LPAR
 	  {
@@ -603,7 +807,8 @@ Exp
 		newError(errfactory, MissingRParen, 
 			@2.last_line, @2.last_column + 1, 
 			filename);		
-	    destroyList(list, destroyAST);			
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }
 	| Exp RPAR %prec UMINUS
@@ -612,7 +817,8 @@ Exp
 		newError(errfactory, MissingLParen, 
 			@1.first_line, @1.first_column,
 			 filename);
-	    destroyList(list, destroyAST);
+		if (list)
+	        destroyList(&list, destroyAST);
 	    haveError = true;
 	  }
 	
@@ -623,73 +829,5 @@ void yyerror(char *filename, char *message)
 	printf("\033[1;31;40m%s\033[0m in %s\n",message, filename);
 }
 
-void usage() // this prepare for p5
-{
-	printf("Usage: ./c1 <filelist> [-hv]\n\
-		\t-h: Optional help flag that prints usage info\n\
-		<filelist>: Name of files need to be analysed.\n\
-		\t-v: Optional verbose flag that display the analyse info.\n");		
-}	
 
 
-int main(int argc, char *argv[])
-{
-	extern FILE *yyin;
-	int i = 1;
-	int temp;
-	haveError = false;
-    list = newList();
-	symtab = newTable();
-	NEW0(ast);
-	/* // this prepare for p5
-	extern char *optarg;	
-	while (-1 != (opt = getopt(argc, argv, ":hv")))
-	{
-		switch(opt)
-		{
-			case 'h': usage(); break;
-			case 'v': break;
-			default: filename = optarg; break;
-		}
-	}
-	*/	
-	FILE *fp = fopen("new.dot", "w");
-	DumpDot *dot = newDumpDot(fp, 1);
-
-	errfactory = newErrFactory();
-	printf("Parsing ...\n");
-	while (i < argc)
-	{	
-		yyin = fopen(argv[i], "r");
-		printf("Parsing file \"\033[1;31;40m%s\033[0m\"\n", argv[i]);
-		temp = yyparse(argv[i], dot);
-		
-		if(temp == 1)
-		{
-			yylineno = 0;
-			printf("parsing failed\n");		
-		}		
-		else if (temp == 2)
-		{
-			printf("using up memory\n");
-			fclose(yyin);	
-			exit(-1);	
-		}
-		else 
-		{
-			yylineno = 1;
-			printf("parsing file \"\033[1;31;40m%s\033[0m\" succcessful\n", argv[i]);				
-		}
-		yycolumn = 1;
-		fclose(yyin);
-		i++;
-	}
-	if (errfactory->errors->size == 0)    
-	    dumpAST(dot, ast);
-	dumpErrors(errfactory);
-	dumpWarnings(errfactory);
-	fprintf(dot->fp, "}\n");
-	fclose(fp);	
-	//dumpDot(dot);
-	return(0);
-}

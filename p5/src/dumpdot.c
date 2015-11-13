@@ -145,7 +145,7 @@ int dumpAsgnExp(DumpDot *dot, ASTNode node)
 {
     if (node->kind == KAssignExp)
     {
-        int i = newNode(dot, 3, "Exp", "=", "Exp");
+        int i = newNode(dot, 3, "lval", "=", "Exp");
         int j = dumpLVal(dot, node->asgnexp->left);
         int k = dumpExp(dot, node->asgnexp->right);
         drawLine(dot, i, 0, j);
@@ -237,13 +237,6 @@ int dumpExp(DumpDot *dot, ASTNode node)
         drawLine(dot, i, 1, j);
         return i;
     }
-    else if (node->kind == KParenExp)
-    {
-        int i = newNode(dot, 3, "(", "Exp", ")");
-        int j = dumpExp(dot, node->exp->kids[0]);
-        drawLine(dot, i, 1, j);
-        return i;
-    }//TODO
     else if (node->kind == KValue)
         return dumpNum(dot, node);
     else if (node->kind == KName)
@@ -270,7 +263,7 @@ int dumpArray(DumpDot *dot, ASTNode node)
     if (node->sym->asym->sizeInitial)
     {
         i = newNode(dot, 4, node->sym->asym->name, "[", "exp", "]");
-        j = dumpExp(dot, node->sym->asym->exp);// TODO
+        j = dumpExp(dot, node->sym->asym->exp->first->item);// TODO
         drawLine(dot, i, 2, j);
     }
     else
@@ -319,7 +312,7 @@ int dumpVarDef(DumpDot *dot, VarDef def)
             }
             drawLine(dot, i, 0, j);
         }
-        else i = newNode(dot, 1, "name");
+        else return j;
     }
     else return 0;
     return i;
@@ -335,13 +328,13 @@ int dumpConstDef(DumpDot *dot, ConstDef def)
     i = newNode(dot, 3, "name", "=", "exp");
     if (def->name->sym->kind == INt)
     {
-        k = dumpExp(dot, def->exp->first->item);
+        k = dumpExp(dot, def->name->sym->sym->exp);
         drawLine(dot, i, 2, k);
     }
     else if (def->name->sym->kind == ARRAY)
     {
      
-       for (temp = listnode(def->exp, 1); temp; temp = temp->next)
+       for (temp = listnode(def->name->sym->asym->exp, 1); temp; temp = temp->next)
        {
             k = dumpExp(dot, temp->item);
             drawLine(dot, i, 2, k);

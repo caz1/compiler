@@ -3,6 +3,7 @@
 #include "c1.tab.h"
 
 int yycolumn = 1;
+static void comment();
 #define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
     yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
     yycolumn += yyleng;
@@ -18,14 +19,14 @@ ID	([_]|{letter})({letter}|{digit})*
 number	{digit}+
 
 %%
-
+"/*"    { comment(); }
 "//".* 	{}
 {ws}	{}
 while	{return(WHILE);}
 const	{ return(CONST);}
 if  	{return(IF);}
 else	{return(ELSE);}
-int	{ return(INT);}
+int	    { return(INT);}
 void	{ return(VOID);}
 {number}	{yylval.ival=atoi(yytext); return(NUMBER);}
 {ID}	{yylval.name = (char*)malloc(strlen(yytext));strcpy(yylval.name, yytext); return(ID);}
@@ -57,6 +58,31 @@ void	{ return(VOID);}
 .	{printf("Illegal character");}
 
 %%
+
+static void comment(void)
+{
+    int c;
+
+    while ((c = input()) != 0)
+    {
+        yycolumn++;
+        if (c == '*')
+        {
+            while ((c = input()) == '*')
+                yycolumn++;
+
+            if (c == '/')
+                return;
+
+            if (c == 0)
+                break;
+        }
+        else if (c == '\n')
+            yycolumn = 1;
+       
+    }
+    yyerror("unterminated comment");
+}
 
 int yywrap(){
     return 1;

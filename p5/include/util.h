@@ -13,11 +13,13 @@
 #define bool	char
 #define TRUE	1
 #define FALSE	0
+FILE *dumpfp, *outfp, *infp;
 #ifdef DEBUG
-#define debug(a) printf("%s", a)
+#define debug(a) fprintf(outfp, "%s", a)
 #else
-#define debug(a) printf("%s", a)
+#define debug(a) fprintf(outfp, "%s", a)
 #endif 
+#define error(format, args...) fprintf(stderr, "\033[31merror: " format "\033[0m", ##args)
 
 typedef struct lnode{
 	void	*item;	// pointer to the item.	

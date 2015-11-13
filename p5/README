@@ -7,11 +7,9 @@ Before running the programs, compile the source file:
 Running the programs:
     linux> make run
 
-It will run the executable files with test case written in advance automatically and write the output to stdout.
-Or you can:
-    linux> make tolog
 It will run the executable files with test case written in advance automatically and write the output to log.
-But it is impossible to show the color in log.
+for file with errors, print it to the stdout
+
 	
 ******************************************************
 Source files used in this project(*means I've edited):
@@ -19,19 +17,23 @@ Source files used in this project(*means I've edited):
 
 c1.lex*		lex file to generate lexer for c1 
 c1.y*		yacc file defines the grammar rules and other things for c1 
-ast.c		source file to generate ast(not used in this project) 
-error.c*	source file to generate error information and display them 
+ast.c*		source file to generate ast 
+error.c*	source file to handle errors and warnings
+main.c*     source file where main function is
 list.c		an implementation of linklist 
-symtab.c 	source file to generate symbol table(not used in this project)
-*.h		head files copyed from bison-example 
-common.h* 
-
+symtab.c* 	source file to generate symbol table(some function cannot work because i change the definition of entry)
+dumpddot.c  source file to dump the ast
+common.h*   head file defining the AST, SYMTAB and error handle
+util.h      head file defining dot and list
+errcfg.h    head file defining error and warning message
 
 ******
 Files:
 ******
 
-log		output of the parser 
+new.png     default file to display the dot
+new.dot     default dot file to dump ast in
+log		    output of the parser 
 Makefile	Build the executable files 	
 README		This file
 src/ 		Source files for this project
