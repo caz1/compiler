@@ -4,7 +4,6 @@
 #include "common.h"
 #include <unistd.h>
 #include "util.h"
-#include <mcheck.h>
 
 extern int yylineno;
 extern int yycolumn;
