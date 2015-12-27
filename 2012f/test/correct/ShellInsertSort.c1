@@ -1,0 +1,41 @@
+int main()
+{
+	int a[10]={0,13,7,9,34,56,43,98,123,100};
+	int alength=10;   /*the alength of the array */
+	int i,j,d;
+	int p=1;
+	d=(alength-1)/2;
+    
+	write("the array before you sort : ");
+	while(p<alength){
+		write(a[p]);
+		write("  ");
+		p=p+1;
+	}
+	write("\n");
+       
+	/*start to sort*/
+	while(d>=1){
+	i=d+1;
+	while(i<alength){
+			a[0]=a[i];   
+			j=i-d;
+			while(j>0&&a[0]<a[j]){
+				a[j+d]=a[j];
+				j=j-d;
+			}
+			a[j+d]=a[0];
+			i=i+1;
+		}
+		d=d/2;
+	}     
+		
+	write("the array after you sort : ");
+	p=1;
+	while(p<alength){
+		write(a[p]);
+		write("  ");
+		p=p+1;
+	}
+	write("\n");
+}

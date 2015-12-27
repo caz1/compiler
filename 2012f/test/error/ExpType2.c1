@@ -1,0 +1,12 @@
+int fl(int n) {
+	n = n-1+(3==10);
+	return 1;
+}
+
+void main() {
+	int fact;
+
+	fact= fl(5);
+	print (fact); 
+	return;
+}

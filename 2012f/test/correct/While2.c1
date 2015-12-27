@@ -1,0 +1,20 @@
+int main(){
+	
+	int i = 0;
+	int j = 9;
+	
+	while(i < j){
+	    j = j - 1;
+	    write("i=");  write(i); 
+	    write("\tj="); write(j); 
+	    write("\n");
+	    if(i == 4 || j == 5){
+			write("Done!\n");
+			break;
+	    }
+	    else
+			continue;
+	    i = i + 1;  // unreachable statement
+	}   
+	return 1;
+}

@@ -1,0 +1,45 @@
+int main()
+{
+	bool t = true, f = false;
+	int i;
+	write("Please input an integer in [0..9]: ");
+	read(i);
+	if (i >= 5) {
+	    write(i);
+	    write("\n");
+	}
+	else 
+	{
+	    write(i + 5);
+	    write("\n");
+	}
+	if (i < 5)
+	{
+	    write(i + 5);
+	    write("\n");
+	}
+	else {{
+	    {write(i);}
+	    write("\n");
+	}}
+	if (i >= 3)
+	    if (i <= 7)
+			if (i >= 5)
+				write("5=<i<=7\n");
+			else if (i >= 4)
+				write("i==4\n");
+			else
+				write("i==3\n");
+	    else
+			if (i <= 8)
+				write("i==8\n");
+			else
+				write("i==9\n");
+	else
+	    if (i <= 0)
+			write("i==0\n");
+	    else if (i >= 2)
+			write("i==2\n");
+	    else
+			write("i==1\n");
+}

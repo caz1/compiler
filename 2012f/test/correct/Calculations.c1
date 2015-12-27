@@ -1,0 +1,37 @@
+int main(){
+	int a = 10;
+	int b = 20;
+	int c = 30;
+	bool m = true;
+	bool n = false;
+       
+	//算术运算
+	write(a+b);write("\n");
+	write(a-b);write("\n");
+	write(a*b);write("\n");
+	write(b/a);write("\n");
+	write(c%b);write("\n");
+	write(-a);write("\n");
+
+	write(a+b-c);write("\n");
+	write(a+b*c);write("\n");
+	write(a*b-c);write("\n");
+	write(b+c/a);write("\n");
+	write(b*(c/a));write("\n");
+	write(c-(a*b));write("\n");
+       
+	//比较运算
+	write(a>b);write("\n");
+	write(a>=b);write("\n");
+	write(a<b);write("\n");
+	write(a<=b);write("\n");
+	write(a==b);write("\n");
+	write(a!=b);write("\n");
+	
+	//布尔型关系逻辑运算
+	write(m&&n);write("\n");
+	write(m||n);write("\n");
+	write(!n);write("\n");
+	
+	return 1;
+}

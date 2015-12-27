@@ -1,0 +1,24 @@
+int factorial(int n) {
+	int fact;
+	if(n<0) {
+		write("The number is less than zero");
+		return 0;
+	}
+	if(n==0) return 1;
+
+
+	fact=n;
+	while (n>1) {
+		n = n-1;
+		fact = fact * n;
+	}
+	return fact;
+}
+
+int main() {
+	int fact;
+	fact= factorial(5);
+	//write(fact);
+	write (factorial(5)); 
+	return 1;
+}

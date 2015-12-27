@@ -1,0 +1,43 @@
+int a[10]={0,13,7,9,34,56,43,98,123,100};
+int a_length=10;
+void printArray()
+{
+	int p=1;
+	while(p<a_length){
+		write(a[p]);
+		write("  ");
+		p=p+1;
+	}
+	write("\n");
+	return;
+}
+void sort(){
+	int i,j,d;
+	d=(a_length-1)/2;
+	while(d>=1){
+		i=d+1;
+		while(i<a_length){
+				a[0]=a[i];   
+				j=i-d;
+				while(j>0&&a[0]<a[j]){
+				a[j+d]=a[j];
+				j=j-d;
+			}
+			a[j+d]=a[0];
+			i=i+1;
+		}
+		d=d/2;
+	}
+	return;
+}   
+
+int main()
+{ 
+   
+	write("the array before you sort is: ");
+	printArray();
+	sort();
+	write("the array after you sort is: ");
+	printArray();
+	return 1;
+}

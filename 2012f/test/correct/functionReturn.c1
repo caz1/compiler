@@ -1,0 +1,17 @@
+int fa(){
+	return 10;
+}
+
+bool fb(){
+	return false;
+}
+
+int main(){
+    
+	int a;
+	bool b;
+	
+	a = fa();    write(a);    write("\n");    
+	b = fb();    write(b);    write("\n");
+	return 1;
+}

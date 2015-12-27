@@ -1,0 +1,21 @@
+int main(){
+    int a = 10;
+    int b = 20;
+    int c = 30;
+    bool m = true;
+    bool n = false;
+       
+    write(a+b == c);
+    write(a-b > c); 
+    write(a*b/c <= 0 && true==true);
+	
+    if (m) {
+		write((a * c - b * c - a * c) / c);
+	}
+	
+    if (!n && m || a != b + c && b/c < a) {
+		a = -a;
+		write(-a % b+2);
+	}
+	return 1;
+}

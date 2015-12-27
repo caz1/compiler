@@ -1,0 +1,21 @@
+int zero = 0;
+int zero() {
+	return zero;
+}
+void main() {
+	int i, j;
+	int ii[2];
+	write("Please input an integer: ");
+	read(i);
+	j = i;
+	
+	write(i / zero);
+	write(i / ii[0]);
+	write(i / (j - i));
+	write(i / zero());
+	
+	write(i % zero);
+	write(i % ii[0]);
+	write(i % (j - i));
+	write(i % zero());
+}

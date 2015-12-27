@@ -1,0 +1,42 @@
+int main(){
+	
+	//测试分支和跳转语句 
+	int i = 1;
+	int j = 10;
+	
+	//if
+	if(i==1)
+	write(i);
+	
+	//if - else
+	if(i <= 0)
+	write("\t[error]1 <= 0\n");
+	else
+	write("\t1 > 0\n");
+		
+	//break
+	i = 1;
+
+	while(i < j){
+		write(i);    write("\t");
+		if(i == 5){
+			write("\n");
+			break;
+		}
+		i = i + 1;
+	}
+	
+	//continue
+	i = 1;
+	while(i < j){
+		if(i == 5){
+			i = i + 1;
+			continue;
+		}
+		write(i);    write("\t");
+		i = i + 1;	
+	}
+	write("\n");
+    
+	return 1;
+}

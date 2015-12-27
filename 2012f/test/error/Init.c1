@@ -1,0 +1,10 @@
+int i;
+bool b; 
+void main() {
+	int ii;
+	bool bb[2];
+	write("i = "); write(i);
+	write("b = "); write(b);
+	write("ii = "); write(ii); // error
+	write("bb = "); write(bb[0]); write(bb[1]); 
+}

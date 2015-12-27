@@ -1,0 +1,11 @@
+C1解释器等资料
+1.提供编译器源程序	bin/compiler
+2.提供解释器源码	src/interpreter.cpp	inc/defs.h
+3.提供解释器说明文档	doc/eir.pdf
+4.提供一系列测试程序	test下
+						test/correct/*	正确的测试程序
+						test/quicksort/*	错误的测试程序
+5.执行脚本	run.sh
+note：bugs exist
+							江晓悟
+							2012.12.6

@@ -1,0 +1,22 @@
+int main() 
+{
+	int score=0; 
+	write("Please input a score (integer):");
+	read(score);
+	if(score>=90)
+	write("excellent\n");
+	else {
+		if (score>=80) 
+			write("good\n");
+		else {
+			if (score>=70) 
+			write("general\n");
+			else {
+				if (score>=60) 
+					write("ok\n");
+				else 
+					write("fail\n");
+			}
+		}
+	}
+}
