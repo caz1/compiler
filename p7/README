@@ -1,0 +1,58 @@
+******************
+Test the programs:
+******************
+
+Before running the programs, compile the source file:
+    linux> make
+Running the programs:
+    linux> make run
+
+It will run the executable files with test case written in advance automatically 
+
+	
+******************************************************
+Source files used in this project:
+******************************************************
+
+c1.lex		lex file to generate lexer for c1 
+c1.y		yacc file defines the grammar rules and other things for c1 
+codegen.cc	source file to generate llvm code
+err.cc		source file to handle errors and warnings
+main.cc     	source file where main function is
+dumpddot.cc  	source file to dump the ast
+cal.cc		source file to calculate some constant in compilation time
+llvm.cc		just use to generate .o file to link
+common.hh   	head file defining the AST, SYMTAB and error handle
+util.hh     	head file defining some macros
+errcfg.hh    	head file defining error and warning message
+dumpddot.hh 	head file defining dot 
+err.hh 		head file defining error manage classes
+global.hh	head file defining global variables
+node.hh		head file defining ast nodes
+llvmhead.hh	head file include llvm head files
+lib.c 		lib file
+
+******************************************************
+Test files used in this project:
+******************************************************
+
+gcd.c 	containing input and while stmt
+sort.c	containing function call , ! operator and handle scope, see i 
+prime.c	containing while, if stmt and inner scope(see i), it also contain break, so it only print primes below 10
+and.c 	containing &&, i do not have a good case to test it, you can use your own case
+test.c  containing some errors
+
+******
+Files:
+******
+
+Makefile	Build the executable files 	
+README		This file
+src/ 		Source files for this project
+bin/		executable file for this project
+test/ 		Test files to test correctness of the program
+doc/		Doc for this project
+config/		lex and yacc file
+include/	head files for this project
+ 
+

@@ -1,0 +1,86 @@
+7.1
+1.
+Module作用：这是一个顶层的结构，可以包含LLVM IR所需要的整个Codegen生成的代码，并且提供了全局符号表的功能。
+IRBuilder作用： 其是帮助生成LLVM指令的对象，可以创建新的指令
+符号表实现：其用一个map<string, value*>的对象实现, before enter a function, it should be cleared
+局限性：it can not solve the problem of scope
+
+2.
+在llvMIR中所有的常量都是独一无二的并且是共享的
+3.
+函数声明的codegen：
+其会进行函数重定义的检查，只允许两种重定义的情况：extern了多次同一个函数和重定义extern的函数
+因为所有的变量都为double型，所以检查参数的时候只检查了参数的个数，如果不match就会报错
+最后将参数的名称存到符号表中
+函数的codegen：
+首先将之前的符号表清空，生成函数声明的code，如果出错则退出，之后创建一个新的block用于插入代码，并将插入代码的位置设置为block的开始，然后对函数体进行codegen
+最后调用verifyFunction进行检查
+
+4.
+因为递归调用then的codegen时，可能会改变insert的位置，因为ifthenelse语句可能会有嵌套，为了使代码生成在正确的位置，需要重新设置插入代码的位置
+
+5.
+可以将EndCond的codegen放在startVal的codegen和loop的标号之后，然后将br的生成放在它之后，在他们之后再加入一个标号mainloop，让br的第一个分支改为mainloop，最后在endCond的代码之后生成一个无条件的条件转移到loop标号后，这样的话，每次循环的条件检查放在循环体之前，而不是之后
+
+6.
+其创建了一个名为OldBindings的vector，在生成代码var表达式的body代码前，将原符号表中的成员保存到其中，在代码生成完毕后再恢复
+
+
+7.2 (i can not input chinese in my PC in the lab, so i'll write the remaining part in english, excuse me for the typo)
+the implementation of symbol table:
+    i use a map<string, tabelem> to define the variable table and a map<string, Value*> to define the function table
+    variable table:
+        typedef struct {
+            Value *alloc;
+            int type;
+            bool isConst;
+            int BlockDepth;
+            vector<int> value;
+        } tabelem;
+        if type = 1, the variable is an array, if type = 0, it is a int
+        BlockDepth handles the scope problem
+        alloc keep the alloca object while create
+        value keep the init value of it, if it is an int, value.size() will be 1, and the value will store at value[0]; if it is an array, the size of it is just the size of value; and it just use to compute the init value of other variables, and is valid only if isConst = true, you can refer src/cal.cc to get more info
+         method to handle the scope problem:
+            i defined a global variable int called BlockDepth and init with 0, it will only be changed in BlockNode::Codegen, while entering, it will increase by one, while leave, it will decrease by one
+            i also defined a vector<pair<string, tabelem>> called oldVal to keep the outer scope variable entry, while generate code related to define a new variable, i'll check the symbol table first, if there is a entry with the same name and BlockDepth, it means redefind a variable, i'll emit an error and stop the codegen, else if there is a entry with same name, i'll store the old entry to the oldVal vector and set the new entry
+            while leaving a block, i'll check the oldVal vector and restore entry to the symtab with the BlockDepth of the current BlockDepth - 1 and delete it from oldVal
+     Function table:
+        i only use one table to handle it, noticing that the redefinding function is forbidden, it just create an entry while define a function or "extern" a function and search it while gencode for a funcall
+
+extern function and variable:
+    init for extern variable is invalid and will not have any effort
+    because i just create a global variable and not init it
+
+7.3     
+i implement the 1 and 2 extended option
+1.support !, &&, ||:
+    the grammar after add these 3 operator:
+        cond -> !cond | cond && cond | cond || cond
+    notice that (cond) is an exp, so !(cond) is not support, you need not to add paren, it might looks weird, but it works  
+    the first one is easy, i just omit here
+    for && and ||, they are about the same, take && for example:
+        the change in lex, yacc file is easy, omit
+        codegen:
+            notice for cond1 && cond2, when cond1 is true, we should not compute cond2, and the cond is only used by if stmt and while stmt, 
+            so i add another codegen function with 2 params, the first one is true out of the cond, the second is false, 
+            i'll check the operator of cond in WhileStmtNode::Codegen and IfStmtNode::Codegen, if it is && or ||, it'll call the function with 2 params,
+            in the newly add codegen function, just 2 case: && and ||; take && for example, it'll first generate code for the left of the cond, also check the operator to determain which to call. 
+            after that, create a condbr, false to false out, true to the next cond start point, and generate code for right cond, just like the left
+            the function is recursive
+        
+2.support "break" and "coninue"
+    the change in lex, yacc file is easy, omit        
+    i add a new member function of codegen for all stmtNode, taking 2 params
+    for codegen, in the codegen for while, i'll pass the cond basicblock pointer and end basicblock point to the codegen of stmt,              
+    it'll recursive gencode in the scope of while stmt with the 2 param, 
+    while meet an new while stmt, update the param.
+    while meet break, create a br to end point
+    while meet continue, create a br to cond point
+    notice that i implememt the Codegen() for BreakNode and ContinueNode with return 0, so if two stmts are not in a while stmt, it will stop the codegen
+    
+i do not have time for the remaining extended option~~~, just see the last commit time
+and the code of p7 are reimplemented in c++ based on p5, so i will push a c++ version of p5         
+            
+
+
